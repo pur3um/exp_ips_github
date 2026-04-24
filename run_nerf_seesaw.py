@@ -29,23 +29,10 @@ from load_blender import load_blender_data
 from load_LINEMOD import load_LINEMOD_data
 
 #//========== Optim ================
-from optims.muon import SingleDeviceMuon, SingleDeviceMuonWithAuxAdam
-from optims.full_svd import SingleDeviceSVDWithAuxAdam
-from optims.lr_svd import SingleDeviceLrSVDWithAuxAdam
 from optims.lr_sign import SingleDeviceSignWithAuxAdam
 from optims.lr_sign10_rsclF import SingleDeviceSign10RsclFWithAuxAdam
-from optims.lr_sign_mono_inc import SingleDeviceSignIncWithAuxAdam
-from optims.lr_sign_cos_inc import SingleDeviceCosIncWithAuxAdam
-from optims.lr_sign_log_inc import SingleDeviceLogIncWithAuxAdam
-from optims.lr_sign_exp_inc import SingleDeviceExpIncWithAuxAdam
-# from optims.ours import OursOptimizer
-# from optims.ours_no_slice import OursOptimizerNoSlice
-# from optims.ours_mono_inc import OursOptimizerIncrease
-# from optims.new_ours import SingleDeviceNewIncWithAuxAdam
 from optims.auto_cos_inc_rank import SingleDeviceAutoCosIncWithAuxAdam
 from optims.run_utils import parse_pair
-
-from optims.shampoo import Shampoo, SingleDeviceShampooWithAuxAdam
 from optims.seesaw_scheduler import SeesawScheduler
 #//=================================
 
