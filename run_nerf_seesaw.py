@@ -1,4 +1,5 @@
 import os, sys
+import math
 import numpy as np
 import imageio
 import json
@@ -32,6 +33,7 @@ from optims.muon import SingleDeviceMuon, SingleDeviceMuonWithAuxAdam
 from optims.full_svd import SingleDeviceSVDWithAuxAdam
 from optims.lr_svd import SingleDeviceLrSVDWithAuxAdam
 from optims.lr_sign import SingleDeviceSignWithAuxAdam
+from optims.lr_sign10_rsclF import SingleDeviceSign10RsclFWithAuxAdam
 from optims.lr_sign_mono_inc import SingleDeviceSignIncWithAuxAdam
 from optims.lr_sign_cos_inc import SingleDeviceCosIncWithAuxAdam
 from optims.lr_sign_log_inc import SingleDeviceLogIncWithAuxAdam
@@ -484,7 +486,7 @@ def init_results_log_optim(results_path, args, optimizer, start):
             f.write(f"    max_rank_ratio: {args.lowrank_max_rank_ratio}\n")
             f.write(f"    scale_mode: {args.lowrank_scale_mode}\n")
         f.write("train_psnr_log:\n")
-        if getattr(args, 'optimizer', '') == 'aux-sign-auto-cos-inc':
+        if getattr(args, 'optimizer', '') in ('aux-sign-auto-cos-inc', 'aux-sign10-rsclF', 'aux-sign10_rsclF'):
             f.write("  lowrank_schedule:\n")
             f.write(f"    rank_start: {args.lowrank_rank_start}\n")
             f.write(f"    rank_end: {args.lowrank_rank_end}\n")
@@ -500,6 +502,13 @@ def init_results_log_optim(results_path, args, optimizer, start):
                 f.write(f"    probe_steps: {args.lowrank_init_probe_steps}\n")
                 f.write(f"    energy_tau: {args.lowrank_init_energy}\n")
                 f.write(f"    round_multiple: {args.lowrank_init_round_multiple}\n")
+        elif getattr(args, 'optimizer', '') == 'aux-sign':
+            f.write("  lowrank_fixed:\n")
+            f.write(f"    rank: {_fixed_rank_for_aux_sign(args)}\n")
+            f.write(f"    oversample: {args.lowrank_oversample}\n")
+            f.write(f"    subspace_iters: {args.lowrank_subspace_iters}\n")
+            f.write(f"    ns_steps: {args.lowrank_ns_steps}\n")
+            f.write(f"    scale_mode: {args.lowrank_scale_mode}\n")
 
 
 def append_results_log_muon(results_path, i, global_step, loss, psnr, optimizer_muon, optimizer_adam):
@@ -559,7 +568,6 @@ def split_nerf_params(net):
 
     return muon_params, adam_params
 
-
 def _resolve_seesaw_boundary_factor(args):
     if getattr(args, "seesaw_boundary_factor", None) is not None:
         return float(args.seesaw_boundary_factor)
@@ -593,36 +601,138 @@ def _get_effective_lowrank_schedule_steps(args):
     return _rescale_steps(args.lowrank_schedule_steps, args.N_iters, effective_total_iters)
 
 
+def _fixed_rank_for_aux_sign(args):
+    # aux-sign has no internal rank schedule, so use rank_end as the fixed-rank baseline.
+    return int(args.lowrank_rank_end if int(args.lowrank_rank_end) > 0 else args.lowrank_rank_start)
+
+
+def _configure_muon_group_for_optimizer(base_group, args, effective_total_iters, effective_lowrank_schedule_steps):
+    g = dict(base_group)
+    opt = str(args.optimizer)
+    sign10_aliases = {'aux-sign10-rsclF', 'aux-sign10_rsclF'}
+
+    if opt == 'aux-sign':
+        g.update(
+            dict(
+                rank=_fixed_rank_for_aux_sign(args),
+                oversample=int(args.lowrank_oversample),
+                n_subspace_iters=int(args.lowrank_subspace_iters),
+                ns_steps=int(args.lowrank_ns_steps),
+                lowrank_rescale=(args.lowrank_scale_mode == 'sqrt'),
+            )
+        )
+    elif opt in sign10_aliases:
+        g.update(
+            dict(
+                rank=int(args.lowrank_rank_start),
+                rank_start=int(args.lowrank_rank_start),
+                rank_end=int(args.lowrank_rank_end),
+                warmup_steps=int(effective_lowrank_schedule_steps),
+                oversample=int(args.lowrank_oversample),
+                auto_init_rank_start=bool(args.lowrank_auto_init_rank_start),
+                init_probe_steps=min(int(args.lowrank_init_probe_steps), int(effective_lowrank_schedule_steps)),
+                init_energy=float(args.lowrank_init_energy),
+                init_round_multiple=int(args.lowrank_init_round_multiple),
+            )
+        )
+    elif opt == 'aux-sign-auto-cos-inc':
+        g.update(
+            dict(
+                iters=int(effective_total_iters),
+                rank=int(args.lowrank_rank_start),
+                rank_start=int(args.lowrank_rank_start),
+                rank_end=int(args.lowrank_rank_end),
+                warmup_steps=int(effective_lowrank_schedule_steps),
+                oversample=int(args.lowrank_oversample),
+                ns_steps=int(args.lowrank_ns_steps),
+                lowrank_rescale=(args.lowrank_scale_mode == 'sqrt'),
+                auto_init_rank_start=bool(args.lowrank_auto_init_rank_start),
+                init_probe_steps=min(int(args.lowrank_init_probe_steps), int(effective_lowrank_schedule_steps)),
+                init_energy=float(args.lowrank_init_energy),
+                init_round_multiple=int(args.lowrank_init_round_multiple),
+            )
+        )
+    elif opt == 'aux-sign-cos-inc':
+        g.update(dict(iters=int(effective_total_iters)))
+
+    return g
+
+
 def _sync_optimizer_schedule_horizon(optimizer, args, reset_rank_fields=False):
     if optimizer is None:
         return
 
     effective_total_iters = int(getattr(args, '_effective_total_iters', args.N_iters))
-    effective_rank_schedule_steps = int(getattr(args, '_effective_lowrank_schedule_steps', effective_total_iters))
+    effective_lowrank_schedule_steps = int(getattr(args, '_effective_lowrank_schedule_steps', effective_total_iters))
+    sign10_aliases = {'aux-sign10-rsclF', 'aux-sign10_rsclF'}
 
     for group in optimizer.param_groups:
         if not group.get('use_muon', False):
             continue
 
-        if args.optimizer == 'aux-sign-cos-inc':
-            group['iters'] = effective_total_iters
+        if args.optimizer == 'aux-sign-cos-inc' and 'iters' in group:
+            group['iters'] = int(effective_total_iters)
 
-        if args.optimizer == 'aux-sign-auto-cos-inc':
-            group['warmup_steps'] = effective_rank_schedule_steps
+        if args.optimizer == 'aux-sign':
+            group['rank'] = int(_fixed_rank_for_aux_sign(args))
+            group['oversample'] = int(args.lowrank_oversample)
+            if 'n_subspace_iters' in group:
+                group['n_subspace_iters'] = int(args.lowrank_subspace_iters)
+            group['ns_steps'] = int(args.lowrank_ns_steps)
+            group['lowrank_rescale'] = (args.lowrank_scale_mode == 'sqrt')
+
+        if args.optimizer in sign10_aliases:
             group['rank'] = int(args.lowrank_rank_start)
             if reset_rank_fields or ('rank_start' not in group):
                 group['rank_start'] = int(args.lowrank_rank_start)
-                group['current_rank'] = int(args.lowrank_rank_start)
-            group['rank_end'] = int(args.lowrank_rank_end)
-            group['current_target_rank'] = int(max(args.lowrank_rank_start, args.lowrank_rank_end))
+                if 'current_rank' in group:
+                    group['current_rank'] = int(args.lowrank_rank_start)
+            if 'rank_end' in group:
+                group['rank_end'] = int(args.lowrank_rank_end)
+            if 'warmup_steps' in group:
+                group['warmup_steps'] = int(effective_lowrank_schedule_steps)
+            group['oversample'] = int(args.lowrank_oversample)
+            if 'auto_init_rank_start' in group:
+                group['auto_init_rank_start'] = bool(args.lowrank_auto_init_rank_start)
+            if 'init_probe_steps' in group:
+                group['init_probe_steps'] = min(int(args.lowrank_init_probe_steps), int(effective_lowrank_schedule_steps))
+            if 'init_energy' in group:
+                group['init_energy'] = float(args.lowrank_init_energy)
+            if 'init_round_multiple' in group:
+                group['init_round_multiple'] = int(args.lowrank_init_round_multiple)
+            if 'current_target_rank' in group:
+                group['current_target_rank'] = int(max(args.lowrank_rank_start, args.lowrank_rank_end))
+            if reset_rank_fields and 'current_method' in group:
+                group['current_method'] = (
+                    'cosine_inc_auto_start' if bool(args.lowrank_auto_init_rank_start) else 'cosine_inc_closed_form'
+                )
+
+        if args.optimizer == 'aux-sign-auto-cos-inc':
+            group['rank'] = int(args.lowrank_rank_start)
+            if 'iters' in group:
+                group['iters'] = int(effective_total_iters)
+            if 'warmup_steps' in group:
+                group['warmup_steps'] = int(effective_lowrank_schedule_steps)
+            if reset_rank_fields or ('rank_start' not in group):
+                group['rank_start'] = int(args.lowrank_rank_start)
+                if 'current_rank' in group:
+                    group['current_rank'] = int(args.lowrank_rank_start)
+            if 'rank_end' in group:
+                group['rank_end'] = int(args.lowrank_rank_end)
             group['oversample'] = int(args.lowrank_oversample)
             group['ns_steps'] = int(args.lowrank_ns_steps)
             group['lowrank_rescale'] = (args.lowrank_scale_mode == 'sqrt')
-            group['auto_init_rank_start'] = bool(args.lowrank_auto_init_rank_start)
-            group['init_probe_steps'] = min(int(args.lowrank_init_probe_steps), effective_rank_schedule_steps)
-            group['init_energy'] = float(args.lowrank_init_energy)
-            group['init_round_multiple'] = int(args.lowrank_init_round_multiple)
-            if reset_rank_fields:
+            if 'auto_init_rank_start' in group:
+                group['auto_init_rank_start'] = bool(args.lowrank_auto_init_rank_start)
+            if 'init_probe_steps' in group:
+                group['init_probe_steps'] = min(int(args.lowrank_init_probe_steps), int(effective_lowrank_schedule_steps))
+            if 'init_energy' in group:
+                group['init_energy'] = float(args.lowrank_init_energy)
+            if 'init_round_multiple' in group:
+                group['init_round_multiple'] = int(args.lowrank_init_round_multiple)
+            if 'current_target_rank' in group:
+                group['current_target_rank'] = int(max(args.lowrank_rank_start, args.lowrank_rank_end))
+            if reset_rank_fields and 'current_method' in group:
                 group['current_method'] = (
                     'cosine_inc_auto_start' if bool(args.lowrank_auto_init_rank_start) else 'cosine_inc_closed_form'
                 )
@@ -658,20 +768,89 @@ def _compute_baseline_lr_pair(args, global_step):
     return args.muon_lrate * ratio, args.lrate * ratio
 
 
-def _apply_optimizer_lrs(optimizer, muon_lr, adam_lr):
+def _apply_optimizer_lrs(optimizer, muon_lr, adam_lr, optimizer_name=''):
+    has_muon_flag = any('use_muon' in group for group in optimizer.param_groups)
+    if has_muon_flag:
+        for param_group in optimizer.param_groups:
+            if param_group.get('use_muon', False):
+                param_group['lr'] = muon_lr
+            else:
+                param_group['lr'] = adam_lr
+        return
+
+    chosen_lr = muon_lr if ('muon' in str(optimizer_name) and 'adam' not in str(optimizer_name)) else adam_lr
     for param_group in optimizer.param_groups:
-        if param_group.get('use_muon', False):
-            param_group['lr'] = muon_lr
-        else:
-            param_group['lr'] = adam_lr
+        param_group['lr'] = chosen_lr
+
+
+def _sample_rays_batch(rays_rgb, i_batch, n_rand):
+    total = int(rays_rgb.shape[0])
+    n_rand = int(n_rand)
+    if n_rand >= total:
+        idx = torch.randint(0, total, (n_rand,), device=rays_rgb.device)
+        return rays_rgb[idx], i_batch, rays_rgb
+
+    if i_batch + n_rand <= total:
+        batch = rays_rgb[i_batch:i_batch+n_rand]
+        i_batch += n_rand
+        if i_batch == total:
+            rand_idx = torch.randperm(total, device=rays_rgb.device)
+            rays_rgb = rays_rgb[rand_idx]
+            i_batch = 0
+        return batch, i_batch, rays_rgb
+
+    tail = rays_rgb[i_batch:]
+    rand_idx = torch.randperm(total, device=rays_rgb.device)
+    rays_rgb = rays_rgb[rand_idx]
+    remaining = n_rand - int(tail.shape[0])
+    head = rays_rgb[:remaining]
+    batch = torch.cat([tail, head], dim=0)
+    i_batch = remaining
+    return batch, i_batch, rays_rgb
+
+
+def _build_seesaw_scheduler(args):
+    max_n_rand = args.seesaw_max_N_rand if args.seesaw_max_N_rand is not None else args.N_rand * 64
+    boundary = args._resolved_seesaw_boundary_factor
+    warmup = args._resolved_seesaw_warmup_steps
+
+    # New API (boundary factor != actual LR factor)
+    try:
+        scheduler = SeesawScheduler(
+            base_lr_adam=args.lrate,
+            base_lr_muon=args.muon_lrate,
+            base_N_rand=args.N_rand,
+            total_iters=args.N_iters,
+            boundary_factor=boundary,
+            lr_decay_factor=args.seesaw_lr_decay_factor,
+            batch_growth_factor=args.seesaw_beta,
+            max_N_rand=max_n_rand,
+            warmup_steps=warmup,
+            cosine_variant=args.seesaw_cosine_variant,
+            max_phases=args.seesaw_max_phases,
+        )
+        return scheduler
+    except TypeError:
+        # Backward-compatible fallback for the older alpha/beta-only class.
+        scheduler = SeesawScheduler(
+            base_lr_adam=args.lrate,
+            base_lr_muon=args.muon_lrate,
+            base_N_rand=args.N_rand,
+            total_iters=args.N_iters,
+            alpha=boundary,
+            beta=args.seesaw_beta,
+            max_N_rand=max_n_rand,
+            max_phases=args.seesaw_max_phases,
+        )
+        return scheduler
+
 
 #@ Optimizer in HERE!!
 def create_nerf(args):
     """Instantiate NeRF's MLP model.
     """
-    effective_total_iters = int(getattr(args, "_effective_total_iters", args.N_iters))
-    effective_lowrank_schedule_steps = int(getattr(args, "_effective_lowrank_schedule_steps", effective_total_iters))
-
+    effective_total_iters = int(getattr(args, '_effective_total_iters', args.N_iters))
+    effective_lowrank_schedule_steps = int(getattr(args, '_effective_lowrank_schedule_steps', effective_total_iters))
     embed_fn, input_ch = get_embedder(args.multires, args.i_embed)
 
     input_ch_views = 0
@@ -729,22 +908,22 @@ def create_nerf(args):
         )
 
     #//======== Create optimizers ========//#
-    aux_param_groups = [
-            dict(params=muon_params,
-                use_muon=True,
-                lr=args.muon_lrate,
-                weight_decay=args.muon_decay,
-                momentum=args.muon_momentum
-            ),
-            dict(
-                params=adam_params,
-                use_muon=False,
-                lr=args.lrate,
-                betas=parse_pair(args.muon_aux_betas),
-                eps=args.muon_aux_eps,
-                weight_decay=args.muon_aux_weight_decay,
-            ),
-        ]
+    muon_group_base = dict(
+            params=muon_params,
+            use_muon=True,
+            lr=args.muon_lrate,
+            weight_decay=args.muon_decay,
+            momentum=args.muon_momentum,
+        )
+    adam_group_base = dict(
+            params=adam_params,
+            use_muon=False,
+            lr=args.lrate,
+            betas=parse_pair(args.muon_aux_betas),
+            eps=args.muon_aux_eps,
+            weight_decay=args.muon_aux_weight_decay,
+        )
+    aux_param_groups = [muon_group_base, adam_group_base]
     
     if args.optimizer in ('ori-adam', 'adam'):
         # optimizer = torch.optim.Adam(params=list(adam_params), lr=args.lrate, betas=(0.9, 0.999))
@@ -799,9 +978,23 @@ def create_nerf(args):
             f'Aux params: {len(adam_params)}. '
         )
     elif args.optimizer == 'aux-sign':
-        optimizer = SingleDeviceSignWithAuxAdam(aux_param_groups)
+        sign_param_groups = [
+            _configure_muon_group_for_optimizer(muon_group_base, args, effective_total_iters, effective_lowrank_schedule_steps),
+            dict(adam_group_base),
+        ]
+        optimizer = SingleDeviceSignWithAuxAdam(sign_param_groups)
         print(
             f'INFO: Aux sign optimizer configured. Hidden params: {len(muon_params)}, '
+            f'Aux params: {len(adam_params)}. '
+        )
+    elif args.optimizer in ('aux-sign10-rsclF', 'aux-sign10_rsclF'):
+        sign10_param_groups = [
+            _configure_muon_group_for_optimizer(muon_group_base, args, effective_total_iters, effective_lowrank_schedule_steps),
+            dict(adam_group_base),
+        ]
+        optimizer = SingleDeviceSign10RsclFWithAuxAdam(sign10_param_groups)
+        print(
+            f'INFO: Aux sign10-rsclF optimizer configured. Hidden params: {len(muon_params)}, '
             f'Aux params: {len(adam_params)}. '
         )
     elif args.optimizer == 'aux-sign-inc':
@@ -812,21 +1005,8 @@ def create_nerf(args):
         )
     elif args.optimizer == 'aux-sign-cos-inc':
         aux_cos_param_groups = [
-            dict(params=muon_params,
-                use_muon=True,
-                lr=args.muon_lrate,
-                weight_decay=args.muon_decay,
-                momentum=args.muon_momentum,
-                iters=effective_total_iters,
-            ),
-            dict(
-                params=adam_params,
-                use_muon=False,
-                lr=args.lrate,
-                betas=parse_pair(args.muon_aux_betas),
-                eps=args.muon_aux_eps,
-                weight_decay=args.muon_aux_weight_decay,
-            ),
+            _configure_muon_group_for_optimizer(muon_group_base, args, effective_total_iters, effective_lowrank_schedule_steps),
+            dict(adam_group_base),
         ]
         optimizer = SingleDeviceCosIncWithAuxAdam(aux_cos_param_groups)
         print(
@@ -846,22 +1026,11 @@ def create_nerf(args):
             f'Aux params: {len(adam_params)}. '
         )
     if args.optimizer == 'aux-sign-auto-cos-inc':
-        aux_param_groups[0].update(
-            dict(
-                rank=args.lowrank_rank_start,
-                rank_start=args.lowrank_rank_start,
-                rank_end=args.lowrank_rank_end,
-                warmup_steps=effective_lowrank_schedule_steps,
-                oversample=args.lowrank_oversample,
-                ns_steps=args.lowrank_ns_steps,
-                lowrank_rescale=(args.lowrank_scale_mode == 'sqrt'),
-                auto_init_rank_start=args.lowrank_auto_init_rank_start,
-                init_probe_steps=min(args.lowrank_init_probe_steps, effective_lowrank_schedule_steps),
-                init_energy=args.lowrank_init_energy,
-                init_round_multiple=args.lowrank_init_round_multiple,
-            )
-        )
-        optimizer = SingleDeviceAutoCosIncWithAuxAdam(aux_param_groups)
+        auto_param_groups = [
+            _configure_muon_group_for_optimizer(muon_group_base, args, effective_total_iters, effective_lowrank_schedule_steps),
+            dict(adam_group_base),
+        ]
+        optimizer = SingleDeviceAutoCosIncWithAuxAdam(auto_param_groups)
         print(
             f'INFO: Sign Auto Cos increase optimizer configured. Hidden params: {len(muon_params)}, '
             f'Aux params: {len(adam_params)}. '
@@ -1240,7 +1409,7 @@ def config_parser():
                         help='How to rescale truncated low-rank updates. sqrt preserves the original behavior; none makes smaller ranks truly weaker.')
     parser.add_argument("--optimizer",
                         type=str,
-                        default='ori-adam',
+                        default='adam',
                         )
     
     # 재현성
@@ -1317,23 +1486,11 @@ def train():
     args._resolved_seesaw_warmup_steps = _resolve_seesaw_warmup_steps(args, args.N_iters)
 
     if args.seesaw_enabled:
-        seesaw = SeesawScheduler(
-            base_lr_adam=args.lrate,
-            base_lr_muon=args.muon_lrate,
-            base_N_rand=args.N_rand,
-            total_iters=args.N_iters,
-            boundary_factor=args._resolved_seesaw_boundary_factor,
-            lr_decay_factor=args.seesaw_lr_decay_factor,
-            batch_growth_factor=args.seesaw_beta,
-            max_N_rand=args.seesaw_max_N_rand if args.seesaw_max_N_rand is not None else args.N_rand * 64,
-            warmup_steps=args._resolved_seesaw_warmup_steps,
-            cosine_variant=args.seesaw_cosine_variant,
-            max_phases=args.seesaw_max_phases,
-        )
+        seesaw = _build_seesaw_scheduler(args)
         args._effective_total_iters = int(seesaw.effective_total_iters)
-        args._resolved_seesaw_lr_decay_factor = float(seesaw.lr_decay_factor)
-        args._seesaw_equal_ray_budget_exact = bool(seesaw.equal_ray_budget_exact)
-        args._seesaw_budget_warning = seesaw.budget_warning
+        args._resolved_seesaw_lr_decay_factor = float(getattr(seesaw, 'lr_decay_factor', args._resolved_seesaw_boundary_factor))
+        args._seesaw_equal_ray_budget_exact = bool(getattr(seesaw, 'equal_ray_budget_exact', True))
+        args._seesaw_budget_warning = getattr(seesaw, 'budget_warning', '')
     else:
         seesaw = None
         args._effective_total_iters = int(args.N_iters)
@@ -1513,6 +1670,8 @@ def train():
 
     if seesaw is not None:
         print(seesaw.describe())
+        if getattr(args, '_seesaw_budget_warning', ''):
+            print(f"[Seesaw][WARN] {args._seesaw_budget_warning}")
     N_iters = int(getattr(args, '_effective_total_iters', args.N_iters)) + 1
     print('Begin')
     print('TRAIN views are', i_train)
@@ -1523,6 +1682,10 @@ def train():
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
     
     start = start + 1
+    if start >= N_iters:
+        print(f"No optimization steps left: start={start}, total_steps={N_iters-1}")
+        return
+
     train_start_time = time.time()
     for i in trange(start, N_iters):
         time0 = time.time()
@@ -1534,27 +1697,19 @@ def train():
             new_muon_lrate = sched["lr_muon"]
             new_adam_lrate = sched["lr_adam"]
             N_rand = int(sched["N_rand"])
-            current_phase = sched["phase_name"]
+            current_phase = sched.get("phase_name", sched.get("phase"))
         else:
             new_muon_lrate, new_adam_lrate = _compute_baseline_lr_pair(args, global_step)
             N_rand = int(args.N_rand)
             current_phase = None
 
-        _apply_optimizer_lrs(optimizer, new_muon_lrate, new_adam_lrate)
+        _apply_optimizer_lrs(optimizer, new_muon_lrate, new_adam_lrate, optimizer_name=args.optimizer)
 
         # Sample random ray batch
         if use_batching:
-            # Ensure the variable batch size always gets a full slice.
-            if i_batch + N_rand > rays_rgb.shape[0]:
-                print("Shuffle data after an epoch!")
-                rand_idx = torch.randperm(rays_rgb.shape[0])
-                rays_rgb = rays_rgb[rand_idx]
-                i_batch = 0
-
-            batch = rays_rgb[i_batch:i_batch+N_rand] # [B, 2+1, 3*?]
+            batch, i_batch, rays_rgb = _sample_rays_batch(rays_rgb, i_batch, N_rand)
             batch = torch.transpose(batch, 0, 1)
             batch_rays, target_s = batch[:2], batch[2]
-            i_batch += N_rand
 
         else:
             # Random from one image
@@ -1616,6 +1771,8 @@ def train():
             # optimizer_adam.step()
             optimizer.step()
 
+        # LR + N_rand are applied before each training step so the current batch
+        # and the current optimizer update use the same scheduler state.
 
         dt = time.time()-time0
         # print(f"Step: {global_step}, Loss: {loss}, Time: {dt}")
@@ -1726,16 +1883,5 @@ if __name__=='__main__':
 
     train()
 
-"""
- CUDA_VISIBLE_DEVICES=0 python run_nerf_seesaw.py \
-  --config configs/lego.txt \
-  --expname lego_seesaw_auto_cos \
-  --optimizer aux-sign-auto-cos-inc \
-  --seesaw_enabled \
-  --seesaw_boundary_factor 2.0 \
-  --seesaw_beta 2.0 \
-  --muon_lrate 3e-3 \
-  --lowrank_rank_start 150 \
-  --lowrank_rank_end 250 \
-  --lowrank_auto_init_rank_start
-"""
+
+# CUDA_VISIBLE_DEVICES=1 python run_auto.py --config configs/lego.txt --basedir ./logs/lego --N_iters 50000 --i_testset 50000 --optimizer aux-sign-auto-cos-inc --muon_momentum 0.95 --muon_lrate 3e-3 --lowrank_auto_init_rank_start --expname aux-sign-auto-cos-inc_50k_mlr3e-3
