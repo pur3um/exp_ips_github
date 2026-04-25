@@ -843,103 +843,13 @@ def create_nerf(args, effective_total_iters=None, effective_rank_schedule_steps=
     if args.optimizer == 'ori-adam':
         # optimizer = torch.optim.Adam(params=list(adam_params), lr=args.lrate, betas=(0.9, 0.999))
         optimizer = torch.optim.Adam(params=list(total_grad_vars), lr=args.lrate, betas=(0.9, 0.999))    
-    elif args.optimizer == 'shampoo':
-        optimizer = Shampoo(params=list(total_grad_vars), lr=args.lrate)
-    elif args.optimizer == 'aux-shampoo':
-        shampoo_param_groups = [
-            dict(
-                params=muon_params,
-                use_muon=True,      # 기존 scheduler 재사용용 플래그
-                lr=args.muon_lrate, # 장기적으로는 shampoo 전용 lr 인자를 따로 두는 게 맞음
-                weight_decay=args.muon_decay,
-                momentum=0.0,       # 핵심 수정: Muon momentum(0.9) 재사용 금지
-                epsilon=1e-3,       # 1e-4보다 안정적
-                update_freq=20,     # 10보다 조금 더 보수적으로
-            ),
-            dict(
-                params=adam_params,
-                use_muon=False,
-                lr=args.lrate,
-                betas=parse_pair(args.muon_aux_betas),
-                eps=args.muon_aux_eps,
-                weight_decay=args.muon_aux_weight_decay,
-            ),
-        ]
-
-        optimizer = SingleDeviceShampooWithAuxAdam(shampoo_param_groups)
-    elif args.optimizer == 'muon':
-        optimizer = SingleDeviceMuon(
-            params=list(muon_params),
-            lr=args.muon_lrate,
-            weight_decay=args.muon_decay,
-            momentum=args.muon_momentum
-            )
-    elif args.optimizer == 'aux-muon':
-        optimizer = SingleDeviceMuonWithAuxAdam(aux_param_groups)
-        print(
-            f'INFO: Aux Muon optimizer configured. Hidden params: {len(muon_params)}, '
-            f'Aux params: {len(adam_params)}.'
-        )
-    elif args.optimizer == 'aux-svd':
-        optimizer = SingleDeviceSVDWithAuxAdam(aux_param_groups)
-        print(
-            f'INFO: Aux SVD optimizer configured. Hidden params: {len(muon_params)}, '
-            f'Aux params: {len(adam_params)}.'
-        )
-    elif args.optimizer == 'aux-lowrank-svd':
-        optimizer = SingleDeviceLrSVDWithAuxAdam(aux_param_groups)
-        print(
-            f'INFO: Dynamic low-rank Muon optimizer configured. Hidden params: {len(muon_params)}, '
-            f'Aux params: {len(adam_params)}. '
-        )
     elif args.optimizer == 'aux-sign':
         optimizer = SingleDeviceSignWithAuxAdam(aux_param_groups)
         print(
             f'INFO: Aux sign optimizer configured. Hidden params: {len(muon_params)}, '
             f'Aux params: {len(adam_params)}. '
         )
-    elif args.optimizer == 'aux-sign-inc':
-        optimizer = SingleDeviceSignIncWithAuxAdam(aux_param_groups)
-        print(
-            f'INFO: Sign increase optimizer configured. Hidden params: {len(muon_params)}, '
-            f'Aux params: {len(adam_params)}. '
-        )
-    elif args.optimizer == 'aux-sign-cos-inc':
-        aux_cos_param_groups = [
-            dict(params=muon_params,
-                use_muon=True,
-                lr=args.muon_lrate,
-                weight_decay=args.muon_decay,
-                momentum=args.muon_momentum,
-                iters=effective_total_iters,
-            ),
-            dict(
-                params=adam_params,
-                use_muon=False,
-                lr=args.lrate,
-                betas=parse_pair(args.muon_aux_betas),
-                eps=args.muon_aux_eps,
-                weight_decay=args.muon_aux_weight_decay,
-            ),
-        ]
-        optimizer = SingleDeviceCosIncWithAuxAdam(aux_cos_param_groups)
-        print(
-            f'INFO: Sign increase optimizer configured. Hidden params: {len(muon_params)}, '
-            f'Aux params: {len(adam_params)}. '
-        )
-    elif args.optimizer == 'aux-sign-log-inc':
-        optimizer = SingleDeviceLogIncWithAuxAdam(aux_param_groups)
-        print(
-            f'INFO: Sign increase optimizer configured. Hidden params: {len(muon_params)}, '
-            f'Aux params: {len(adam_params)}. '
-        )
-    elif args.optimizer == 'aux-sign-exp-inc':
-        optimizer = SingleDeviceExpIncWithAuxAdam(aux_param_groups)
-        print(
-            f'INFO: Sign increase optimizer configured. Hidden params: {len(muon_params)}, '
-            f'Aux params: {len(adam_params)}. '
-        )
-    if args.optimizer == 'aux-sign-auto-cos-inc':
+    elif args.optimizer == 'aux-sign-auto-cos-inc':
         aux_param_groups[0].update(
             dict(
                 iters=effective_total_iters,
@@ -1792,5 +1702,6 @@ if __name__=='__main__':
 
     train()
 
-
-# CUDA_VISIBLE_DEVICES=1 python run_auto.py --config configs/lego.txt --basedir ./logs/lego --N_iters 50000 --i_testset 50000 --optimizer aux-sign-auto-cos-inc --muon_momentum 0.95 --muon_lrate 3e-3 --lowrank_auto_init_rank_start --expname aux-sign-auto-cos-inc_50k_mlr3e-3
+# CUDA_VISIBLE_DEVICES=0 python run_nerf_seesaw.py   --config configs/lego.txt --basedir logs/seesaw_schd --expname lego_seesaw_aux-sign10-rsclF   --optimizer aux-sign10-rsclF   --seesaw_enabled   --seesaw_boundary_factor 2.0   --seesaw_beta 2.0   --muon_lrate 3e-3   --lowrank_rank_start 150   --lowrank_rank_end 250   --lowrank_auto_init_rank_start
+#// (Vast) CUDA_VISIBLE_DEVICES=0 python run_nerf_seesaw.py --config configs/lego.txt --basedir logs --expname lego_seesaw_aux-auto --optimizer aux-sign-auto-cos-inc --seesaw_enabled --seesaw_boundary_decay 2.0 --seesaw_beta 2.0 --train_rays_per_render 4096 --seesaw_max_N_rand 8192 --N_iters 100000
+#@ (Vast)  CUDA_VISIBLE_DEVICES=0 python run_nerf_seesaw.py --config configs/lego.txt --basedir logs --expname lego_seesaw_aux-auto --optimizer aux-sign-auto-cos-inc --seesaw_enabled --seesaw_boundary_decay 2.0 --seesaw_beta 2.0 --train_rays_per_render 4096 --seesaw_max_N_rand 8192 --N_iters 100000
