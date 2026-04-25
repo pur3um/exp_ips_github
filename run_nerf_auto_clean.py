@@ -29,10 +29,11 @@ from load_LINEMOD import load_LINEMOD_data
 
 #//========== Optim ================
 from optims.lr_sign import SingleDeviceSignWithAuxAdam
-from optims.lr_sign10_rsclF import SingleDeviceSign10RsclFWithAuxAdam
 from optims.auto_cos_inc_rank import SingleDeviceAutoCosIncWithAuxAdam
+from optims.auto_step_rank import SingleDeviceAutoStepRankWithAuxAdam
+from optims.auto_rank_adaptive_ns import SingleDeviceAutoRankAdaptiveNSWithAuxAdam
+from optims.auto_lazy_q_update import SingleDeviceAutoLazyQWithAuxAdam
 from optims.run_utils import parse_pair
-from optims.seesaw_scheduler import SeesawScheduler
 #//=================================
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -169,29 +170,8 @@ def batchify(fn, chunk):
     if chunk is None:
         return fn
     def ret(inputs):
-        outputs = []
-        for i in range(0, inputs.shape[0], chunk):
-            outputs.append(fn(inputs[i:i+chunk]))
-        return torch.cat(outputs, 0)
+        return torch.cat([fn(inputs[i:i+chunk]) for i in range(0, inputs.shape[0], chunk)], 0)
     return ret
-
-
-def _run_network_chunked(fn, embedded, chunk):
-    if chunk is None or embedded.shape[0] <= chunk:
-        return fn(embedded)
-
-    outputs_flat = None
-    for i in range(0, embedded.shape[0], chunk):
-        out_chunk = fn(embedded[i:i+chunk])
-        if outputs_flat is None:
-            outputs_flat = torch.empty(
-                (embedded.shape[0], out_chunk.shape[-1]),
-                device=out_chunk.device,
-                dtype=out_chunk.dtype,
-            )
-        outputs_flat[i:i+out_chunk.shape[0]] = out_chunk
-    return outputs_flat
-
 
 def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     """Prepares inputs and applies network 'fn'.
@@ -200,20 +180,18 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     embedded = embed_fn(inputs_flat)
 
     if viewdirs is not None:
-        input_dirs = viewdirs[:, None].expand(inputs.shape)
+        input_dirs = viewdirs[:,None].expand(inputs.shape)
         input_dirs_flat = torch.reshape(input_dirs, [-1, input_dirs.shape[-1]])
         embedded_dirs = embeddirs_fn(input_dirs_flat)
         embedded = torch.cat([embedded, embedded_dirs], -1)
 
-    outputs_flat = _run_network_chunked(fn, embedded, netchunk)
+    outputs_flat = batchify(fn, netchunk)(embedded)
     outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
     return outputs
 
 def batchify_rays(rays_flat, chunk=1024*32, **kwargs):
-    """Render rays in smaller minibatches to avoid OOM."""
-    if chunk is None or rays_flat.shape[0] <= chunk:
-        return render_rays(rays_flat, **kwargs)
-
+    """Render rays in smaller minibatches to avoid OOM.
+    """
     all_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
         ret = render_rays(rays_flat[i:i+chunk], **kwargs)
@@ -466,7 +444,7 @@ def init_results_log_optim(results_path, args, optimizer, start):
     with open(results_path, 'a') as f:
         f.write('=' * 100 + '\n')
         f.write(f"run_start_time: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write("script: run_nerf_muon.py\n")
+        f.write("script: run_nerf_auto_clean.py\n")
         f.write(f"expname: {args.expname}\n")
         f.write(f"dataset_type: {args.dataset_type}\n")
         f.write(f"datadir: {args.datadir}\n")
@@ -482,27 +460,14 @@ def init_results_log_optim(results_path, args, optimizer, start):
         f.write(f"  lrate_decay_ksteps: {args.lrate_decay}\n")
         f.write(f"  muon_tensor_count: {optim_tensor_count}\n")
         f.write(f"  muon_total_params: {optim_total_params}\n")
-        if getattr(args, 'optimizer', '') == 'aux-lowrank-svd':
-            f.write("  lowrank_schedule:\n")
-            f.write(f"    rank_start: {args.lowrank_rank_start}\n")
-            f.write(f"    rank_end: {args.lowrank_rank_end}\n")
-            f.write(f"    schedule: {args.lowrank_schedule}\n")
-            f.write(f"    schedule_steps: {getattr(args, 'effective_lowrank_schedule_steps', args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters)}\n")
-            f.write(f"    oversample: {args.lowrank_oversample}\n")
-            f.write(f"    subspace_iters: {args.lowrank_subspace_iters}\n")
-            f.write(f"    ns_steps: {args.lowrank_ns_steps}\n")
-            f.write(f"    min_dim: {args.lowrank_min_dim}\n")
-            f.write(f"    max_rank_ratio: {args.lowrank_max_rank_ratio}\n")
-            f.write(f"    scale_mode: {args.lowrank_scale_mode}\n")
-        f.write("train_psnr_log:\n")
+
         if getattr(args, 'optimizer', '') == 'aux-sign-auto-cos-inc':
             f.write("  lowrank_schedule:\n")
             f.write(f"    rank_start: {args.lowrank_rank_start}\n")
             f.write(f"    rank_end: {args.lowrank_rank_end}\n")
             f.write("    schedule: cosine_increase_closed_form\n")
-            f.write(f"    schedule_steps: {getattr(args, 'effective_lowrank_schedule_steps', args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters)}\n")
+            f.write(f"    schedule_steps: {args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters}\n")
             f.write(f"    oversample: {args.lowrank_oversample}\n")
-            f.write(f"    subspace_iters: {args.lowrank_subspace_iters}\n")
             f.write(f"    ns_steps: {args.lowrank_ns_steps}\n")
             f.write(f"    scale_mode: {args.lowrank_scale_mode}\n")
             if args.lowrank_auto_init_rank_start:
@@ -511,6 +476,48 @@ def init_results_log_optim(results_path, args, optimizer, start):
                 f.write(f"    probe_steps: {args.lowrank_init_probe_steps}\n")
                 f.write(f"    energy_tau: {args.lowrank_init_energy}\n")
                 f.write(f"    round_multiple: {args.lowrank_init_round_multiple}\n")
+
+        if getattr(args, 'optimizer', '') == 'aux-sign-step-rank':
+            f.write("  lowrank_schedule:\n")
+            f.write(f"    rank_start: {args.lowrank_rank_start}\n")
+            f.write(f"    rank_end: {args.lowrank_rank_end}\n")
+            f.write("    schedule: discrete_step_increase\n")
+            f.write(f"    schedule_steps: {args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters}\n")
+            f.write(f"    rank_num_stages: {args.discrete_rank_num_stages}\n")
+            f.write(f"    oversample: {args.lowrank_oversample}\n")
+            f.write(f"    ns_steps: {args.lowrank_ns_steps}\n")
+            f.write(f"    lazy_q_enabled: {args.step_rank_lazy_q_enabled}\n")
+            if args.step_rank_lazy_q_enabled:
+                f.write(f"    lazy_q_update_gap: {args.step_rank_lazy_q_update_gap}\n")
+                f.write(f"    lazy_q_use_b_ema: {args.step_rank_lazy_q_use_b_ema}\n")
+                f.write(f"    lazy_q_b_ema_decay: {args.step_rank_lazy_q_b_ema_decay}\n")
+            f.write(f"    scale_mode: {args.lowrank_scale_mode}\n")
+
+        if getattr(args, 'optimizer', '') == 'aux-sign-rank-adaptive-ns':
+            f.write("  lowrank_schedule:\n")
+            f.write(f"    rank_start: {args.lowrank_rank_start}\n")
+            f.write(f"    rank_end: {args.lowrank_rank_end}\n")
+            f.write("    schedule: cosine_increase_closed_form\n")
+            f.write(f"    schedule_steps: {args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters}\n")
+            f.write(f"    oversample: {args.lowrank_oversample}\n")
+            f.write(f"    ns_steps_min: {args.adaptive_ns_min_steps}\n")
+            f.write(f"    ns_steps_max: {args.adaptive_ns_max_steps}\n")
+            f.write(f"    scale_mode: {args.lowrank_scale_mode}\n")
+
+        if getattr(args, 'optimizer', '') == 'aux-sign-lazy-q':
+            f.write("  lowrank_schedule:\n")
+            f.write(f"    rank_start: {args.lowrank_rank_start}\n")
+            f.write(f"    rank_end: {args.lowrank_rank_end}\n")
+            f.write("    schedule: cosine_increase_closed_form\n")
+            f.write(f"    schedule_steps: {args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters}\n")
+            f.write(f"    oversample: {args.lowrank_oversample}\n")
+            f.write(f"    ns_steps: {args.lowrank_ns_steps}\n")
+            f.write(f"    lazy_q_update_gap: {args.lazy_q_update_gap}\n")
+            f.write(f"    lazy_q_use_b_ema: {args.lazy_q_use_b_ema}\n")
+            f.write(f"    lazy_q_b_ema_decay: {args.lazy_q_b_ema_decay}\n")
+            f.write(f"    scale_mode: {args.lowrank_scale_mode}\n")
+
+        f.write("train_psnr_log:\n")
 
 
 def append_results_log_muon(results_path, i, global_step, loss, psnr, optimizer_muon, optimizer_adam):
@@ -529,6 +536,13 @@ def append_results_log_optim(results_path, i, global_step, loss, psnr, optimizer
     current_rank = optimizer.param_groups[0].get('current_rank', None)
     current_target_rank = optimizer.param_groups[0].get('current_target_rank', None)
     current_method = optimizer.param_groups[0].get('current_method', None)
+    current_ns_steps = optimizer.param_groups[0].get('current_ns_steps', None)
+    current_lazy_q_gap = optimizer.param_groups[0].get('current_lazy_q_gap', None)
+    current_lazy_q_last_refresh_step = optimizer.param_groups[0].get('current_lazy_q_last_refresh_step', None)
+    current_lazy_q_refresh_this_step = optimizer.param_groups[0].get('current_lazy_q_refresh_this_step', None)
+    current_lazy_q_use_b_ema = optimizer.param_groups[0].get('current_lazy_q_use_b_ema', None)
+    current_lazy_q_b_ema_decay = optimizer.param_groups[0].get('current_lazy_q_b_ema_decay', None)
+    current_lazy_q_b_ema_initialized = optimizer.param_groups[0].get('current_lazy_q_b_ema_initialized', None)
     rank_log = ""
     if current_rank is not None:
         rank_log += f" muon_rank={current_rank}"
@@ -536,12 +550,27 @@ def append_results_log_optim(results_path, i, global_step, loss, psnr, optimizer
         rank_log += f" muon_target_rank={current_target_rank}"
     if current_method is not None:
         rank_log += f" muon_method={current_method}"
+    if current_ns_steps is not None:
+        rank_log += f" muon_ns_steps={current_ns_steps}"
+    if current_lazy_q_gap is not None:
+        rank_log += f" muon_lazy_q_gap={current_lazy_q_gap}"
+    if current_lazy_q_last_refresh_step is not None:
+        rank_log += f" muon_lazy_q_last_refresh={current_lazy_q_last_refresh_step}"
+    if current_lazy_q_refresh_this_step is not None:
+        rank_log += f" muon_lazy_q_refreshed={int(bool(current_lazy_q_refresh_this_step))}"
+    if current_lazy_q_use_b_ema is not None:
+        rank_log += f" muon_lazy_q_use_b_ema={int(bool(current_lazy_q_use_b_ema))}"
+    if current_lazy_q_b_ema_decay is not None:
+        rank_log += f" muon_lazy_q_b_ema_decay={float(current_lazy_q_b_ema_decay):.6f}"
+    if current_lazy_q_b_ema_initialized is not None:
+        rank_log += f" muon_lazy_q_b_ema_init={int(bool(current_lazy_q_b_ema_initialized))}"
     with open(results_path, 'a') as f:
         f.write(
             f"iter={i} global_step={global_step} "
             f"loss={loss.item():.10f} psnr={psnr.item():.6f} "
             f"muon_lr={muon_lr:.8e} adam_lr={adam_lr:.8e}{rank_log}\n"
         )
+
 
 def split_nerf_params(net):
     muon_params = []
@@ -570,202 +599,9 @@ def split_nerf_params(net):
 
     return muon_params, adam_params
 
-def _resolve_seesaw_warmup_steps(args):
-    warmup_steps = int(getattr(args, 'seesaw_warmup_steps', 0) or 0)
-    if warmup_steps > 0:
-        return min(max(int(args.N_iters) - 1, 0), warmup_steps)
-
-    warmup_frac = float(getattr(args, 'seesaw_warmup_frac', 0.0) or 0.0)
-    if warmup_frac > 0.0:
-        frac_steps = int(round(float(args.N_iters) * warmup_frac))
-        return min(max(int(args.N_iters) - 1, 0), frac_steps)
-    return 0
-
-
-def _build_seesaw_from_args(args):
-    if not getattr(args, 'seesaw_enabled', False):
-        return None
-
-    boundary_decay = getattr(args, 'seesaw_boundary_decay', 2.0)
-    deprecated_alpha = getattr(args, 'seesaw_alpha', None)
-    if deprecated_alpha is not None:
-        boundary_decay = deprecated_alpha
-
-    lr_decay = getattr(args, 'seesaw_lr_decay', None)
-    if lr_decay is not None and lr_decay <= 0.0:
-        lr_decay = None
-
-    return SeesawScheduler(
-        base_lr_adam=args.lrate,
-        base_lr_muon=args.muon_lrate,
-        base_N_rand=args.N_rand,
-        total_iters=args.N_iters,
-        boundary_decay_factor=boundary_decay,
-        lr_decay_factor=lr_decay,
-        beta=args.seesaw_beta,
-        warmup_iters=_resolve_seesaw_warmup_steps(args),
-        warmup_start_factor=0.0,
-        max_N_rand=args.seesaw_max_N_rand if args.seesaw_max_N_rand is not None else args.N_rand * 64,
-        max_phases=args.seesaw_max_phases,
-    )
-
-
-def _resolve_effective_total_iters(args, seesaw):
-    return int(seesaw.effective_total_iters) if seesaw is not None else int(args.N_iters)
-
-
-def _resolve_effective_lowrank_schedule_steps(args, seesaw):
-    original_steps = int(args.lowrank_schedule_steps) if int(args.lowrank_schedule_steps) > 0 else int(args.N_iters)
-    if seesaw is None:
-        return max(1, original_steps)
-    return max(1, int(seesaw.rescale_schedule_steps(original_steps)))
-
-
-def _refresh_optimizer_horizon_after_load(optimizer, effective_total_iters, effective_rank_schedule_steps):
-    if optimizer is None:
-        return
-    for group in optimizer.param_groups:
-        if 'iters' in group:
-            group['iters'] = int(effective_total_iters)
-        if 'warmup_steps' in group:
-            group['warmup_steps'] = int(effective_rank_schedule_steps)
-
-
-def _apply_dual_branch_lrs(optimizer, new_muon_lrate, new_adam_lrate, optimizer_name=''):
-    has_muon_flag = any('use_muon' in group for group in optimizer.param_groups)
-    if has_muon_flag:
-        for param_group in optimizer.param_groups:
-            if param_group.get('use_muon', False):
-                param_group['lr'] = float(new_muon_lrate)
-            else:
-                param_group['lr'] = float(new_adam_lrate)
-        return
-
-    chosen_lr = float(new_muon_lrate) if ('muon' in str(optimizer_name) and 'adam' not in str(optimizer_name)) else float(new_adam_lrate)
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = chosen_lr
-
-
-def _shuffle_rays_rgb(rays_rgb):
-    rand_idx = torch.randperm(rays_rgb.shape[0], device=rays_rgb.device)
-    return rays_rgb[rand_idx]
-
-
-def _sample_rays_batch(rays_rgb, i_batch, batch_size):
-    batch_size = int(batch_size)
-    total = int(rays_rgb.shape[0])
-    if total <= 0:
-        raise ValueError('rays_rgb must contain at least one ray.')
-    if batch_size <= 0:
-        raise ValueError(f'batch_size must be positive, got {batch_size}')
-
-    if batch_size >= total:
-        idx = torch.randint(0, total, (batch_size,), device=rays_rgb.device)
-        return rays_rgb[idx], i_batch, rays_rgb
-
-    if i_batch + batch_size <= total:
-        batch = rays_rgb[i_batch:i_batch+batch_size]
-        i_batch += batch_size
-        if i_batch == total:
-            rays_rgb = _shuffle_rays_rgb(rays_rgb)
-            i_batch = 0
-        return batch, i_batch, rays_rgb
-
-    tail = rays_rgb[i_batch:]
-    rays_rgb = _shuffle_rays_rgb(rays_rgb)
-    remaining = batch_size - int(tail.shape[0])
-    head = rays_rgb[:remaining]
-    batch = torch.cat([tail, head], dim=0)
-    i_batch = remaining
-    return batch, i_batch, rays_rgb
-
-
-def _zero_optimizer_grad(optimizer):
-    try:
-        optimizer.zero_grad(set_to_none=True)
-    except TypeError:
-        optimizer.zero_grad()
-
-
-def _perform_train_step(
-    H,
-    W,
-    K,
-    batch_rays,
-    target_s,
-    render_kwargs_train,
-    args,
-    optimizer,
-    grad_vars,
-    microbatch_rays,
-):
-    total_rays = int(target_s.shape[0])
-    requested_microbatch = int(microbatch_rays) if microbatch_rays and int(microbatch_rays) > 0 else total_rays
-    current_microbatch = min(requested_microbatch, total_rays)
-
-    while True:
-        try:
-            _zero_optimizer_grad(optimizer)
-            total_img_loss = None
-            total_loss = None
-
-            for start_idx in range(0, total_rays, current_microbatch):
-                end_idx = min(total_rays, start_idx + current_microbatch)
-                weight = float(end_idx - start_idx) / float(total_rays)
-
-                rays_mb = batch_rays[:, start_idx:end_idx]
-                target_mb = target_s[start_idx:end_idx]
-
-                rgb, disp, acc, extras = render(
-                    H,
-                    W,
-                    K,
-                    chunk=min(args.chunk, end_idx - start_idx),
-                    rays=rays_mb,
-                    verbose=False,
-                    retraw=bool(getattr(args, 'train_retraw', False)),
-                    **render_kwargs_train,
-                )
-
-                img_loss_mb = img2mse(rgb, target_mb)
-                loss_mb = img_loss_mb
-                if 'rgb0' in extras:
-                    loss_mb = loss_mb + img2mse(extras['rgb0'], target_mb)
-
-                (loss_mb * weight).backward()
-
-                weighted_img_loss = img_loss_mb.detach() * weight
-                weighted_total_loss = loss_mb.detach() * weight
-                total_img_loss = weighted_img_loss if total_img_loss is None else total_img_loss + weighted_img_loss
-                total_loss = weighted_total_loss if total_loss is None else total_loss + weighted_total_loss
-
-                del rgb, disp, acc, extras, img_loss_mb, loss_mb, target_mb, rays_mb
-
-            if 'shampoo' in args.optimizer:
-                torch.nn.utils.clip_grad_norm_(grad_vars, max_norm=1.0)
-            optimizer.step()
-            psnr = mse2psnr(total_img_loss)
-            return total_loss, total_img_loss, psnr, current_microbatch
-
-        except RuntimeError as e:
-            if 'out of memory' not in str(e).lower() or current_microbatch <= 1:
-                raise
-            print(f'[OOM-SAFE] CUDA OOM at train_rays_per_render={current_microbatch}. Retrying with half the rays.')
-            _zero_optimizer_grad(optimizer)
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-            current_microbatch = max(1, current_microbatch // 2)
-
-
 #@ Optimizer in HERE!!
-def create_nerf(args, effective_total_iters=None, effective_rank_schedule_steps=None):
-    """Instantiate NeRF's MLP model.
-    """
-    if effective_total_iters is None:
-        effective_total_iters = int(args.N_iters)
-    if effective_rank_schedule_steps is None:
-        original_rank_steps = int(args.lowrank_schedule_steps) if int(args.lowrank_schedule_steps) > 0 else int(effective_total_iters)
-        effective_rank_schedule_steps = max(1, original_rank_steps)
+def create_nerf(args):
+    """Instantiate NeRF's MLP model."""
     embed_fn, input_ch = get_embedder(args.multires, args.i_embed)
 
     input_ch_views = 0
@@ -777,29 +613,9 @@ def create_nerf(args, effective_total_iters=None, effective_rank_schedule_steps=
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
-    """
-    NeRF(
-    (pts_linears): ModuleList(
-        (0): Linear(in_features=63, out_features=256, bias=True)
-        (1-4): 4 x Linear(in_features=256, out_features=256, bias=True)
-        (5): Linear(in_features=319, out_features=256, bias=True)
-        (6-7): 2 x Linear(in_features=256, out_features=256, bias=True)
-    )
-    (views_linears): ModuleList(
-        (0): Linear(in_features=283, out_features=128, bias=True)
-    )
-    (feature_linear): Linear(in_features=256, out_features=256, bias=True)
-    (alpha_linear): Linear(in_features=256, out_features=1, bias=True)
-    (rgb_linear): Linear(in_features=128, out_features=3, bias=True)
-    )
-    """
-    #@ Muon INR: split_muon_like_named_params
+
     total_grad_vars = list(model.parameters())
     muon_params, adam_params = split_nerf_params(model)
-
-    # from optims.run_utils import split_muon_like_named_params
-    # hiddenp, otherp = split_muon_like_named_params(model, "nerf")
-    # import pdb; pdb.set_trace()
 
     model_fine = None
     if args.N_importance > 0:
@@ -815,34 +631,33 @@ def create_nerf(args, effective_total_iters=None, effective_rank_schedule_steps=
 
     print(f'Param split: Muon={len(muon_params)} tensors, Adam={len(adam_params)} tensors')
 
-    network_query_fn = lambda inputs, viewdirs, network_fn : run_network(
+    network_query_fn = lambda inputs, viewdirs, network_fn: run_network(
         inputs, viewdirs, network_fn,
         embed_fn=embed_fn,
         embeddirs_fn=embeddirs_fn,
         netchunk=args.netchunk
-        )
+    )
 
-    #//======== Create optimizers ========//#
     aux_param_groups = [
-            dict(params=muon_params,
-                use_muon=True,
-                lr=args.muon_lrate,
-                weight_decay=args.muon_decay,
-                momentum=args.muon_momentum
-            ),
-            dict(
-                params=adam_params,
-                use_muon=False,
-                lr=args.lrate,
-                betas=parse_pair(args.muon_aux_betas),
-                eps=args.muon_aux_eps,
-                weight_decay=args.muon_aux_weight_decay,
-            ),
-        ]
-    
-    if args.optimizer == 'ori-adam':
-        # optimizer = torch.optim.Adam(params=list(adam_params), lr=args.lrate, betas=(0.9, 0.999))
-        optimizer = torch.optim.Adam(params=list(total_grad_vars), lr=args.lrate, betas=(0.9, 0.999))    
+        dict(
+            params=muon_params,
+            use_muon=True,
+            lr=args.muon_lrate,
+            weight_decay=args.muon_decay,
+            momentum=args.muon_momentum,
+        ),
+        dict(
+            params=adam_params,
+            use_muon=False,
+            lr=args.lrate,
+            betas=parse_pair(args.muon_aux_betas),
+            eps=args.muon_aux_eps,
+            weight_decay=args.muon_aux_weight_decay,
+        ),
+    ]
+
+    if args.optimizer in ('adam', 'ori-adam'):
+        optimizer = torch.optim.Adam(params=list(total_grad_vars), lr=args.lrate, betas=(0.9, 0.999))
     elif args.optimizer == 'aux-sign':
         optimizer = SingleDeviceSignWithAuxAdam(aux_param_groups)
         print(
@@ -852,14 +667,7 @@ def create_nerf(args, effective_total_iters=None, effective_rank_schedule_steps=
     elif args.optimizer == 'aux-sign-auto-cos-inc':
         aux_param_groups[0].update(
             dict(
-                iters=effective_total_iters,
-                rank=args.lowrank_rank_start,
-                rank_start=args.lowrank_rank_start,
-                rank_end=args.lowrank_rank_end,
-                warmup_steps=effective_rank_schedule_steps,
-                oversample=args.lowrank_oversample,
-                ns_steps=args.lowrank_ns_steps,
-                lowrank_rescale=(args.lowrank_scale_mode == 'sqrt'),
+                iters=args.N_iters,
                 auto_init_rank_start=args.lowrank_auto_init_rank_start,
                 init_probe_steps=args.lowrank_init_probe_steps,
                 init_energy=args.lowrank_init_energy,
@@ -871,15 +679,97 @@ def create_nerf(args, effective_total_iters=None, effective_rank_schedule_steps=
             f'INFO: Sign Auto Cos increase optimizer configured. Hidden params: {len(muon_params)}, '
             f'Aux params: {len(adam_params)}. '
         )
-    #//===================================//#
+    elif args.optimizer == 'aux-sign-step-rank':
+        aux_param_groups[0].update(
+            dict(
+                rank=args.lowrank_rank_start,
+                rank_start=args.lowrank_rank_start,
+                rank_end=args.lowrank_rank_end,
+                warmup_steps=args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters,
+                rank_num_stages=args.discrete_rank_num_stages,
+                lazy_q_enabled=args.step_rank_lazy_q_enabled,
+                lazy_q_update_gap=args.step_rank_lazy_q_update_gap,
+                lazy_q_use_b_ema=args.step_rank_lazy_q_use_b_ema,
+                lazy_q_b_ema_decay=args.step_rank_lazy_q_b_ema_decay,
+                oversample=args.lowrank_oversample,
+                ns_steps=args.lowrank_ns_steps,
+                lowrank_rescale=(args.lowrank_scale_mode == 'sqrt'),
+                auto_init_rank_start=args.lowrank_auto_init_rank_start,
+                init_probe_steps=args.lowrank_init_probe_steps,
+                init_energy=args.lowrank_init_energy,
+                init_round_multiple=args.lowrank_init_round_multiple,
+            )
+        )
+        optimizer = SingleDeviceAutoStepRankWithAuxAdam(aux_param_groups)
+        if args.step_rank_lazy_q_enabled:
+            print(
+                f'INFO: Step-rank optimizer configured with optional lazy-Q enabled. Hidden params: {len(muon_params)}, '
+                f'Aux params: {len(adam_params)}. '
+            )
+        else:
+            print(
+                f'INFO: Step-rank optimizer configured. Hidden params: {len(muon_params)}, '
+                f'Aux params: {len(adam_params)}. '
+            )
+    elif args.optimizer == 'aux-sign-rank-adaptive-ns':
+        aux_param_groups[0].update(
+            dict(
+                rank=args.lowrank_rank_start,
+                rank_start=args.lowrank_rank_start,
+                rank_end=args.lowrank_rank_end,
+                warmup_steps=args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters,
+                oversample=args.lowrank_oversample,
+                ns_steps=args.lowrank_ns_steps,
+                ns_steps_min=args.adaptive_ns_min_steps,
+                ns_steps_max=args.adaptive_ns_max_steps,
+                lowrank_rescale=(args.lowrank_scale_mode == 'sqrt'),
+                auto_init_rank_start=args.lowrank_auto_init_rank_start,
+                init_probe_steps=args.lowrank_init_probe_steps,
+                init_energy=args.lowrank_init_energy,
+                init_round_multiple=args.lowrank_init_round_multiple,
+            )
+        )
+        optimizer = SingleDeviceAutoRankAdaptiveNSWithAuxAdam(aux_param_groups)
+        print(
+            f'INFO: Rank-adaptive-NS optimizer configured. Hidden params: {len(muon_params)}, '
+            f'Aux params: {len(adam_params)}. '
+        )
+    elif args.optimizer == 'aux-sign-lazy-q':
+        aux_param_groups[0].update(
+            dict(
+                rank=args.lowrank_rank_start,
+                rank_start=args.lowrank_rank_start,
+                rank_end=args.lowrank_rank_end,
+                warmup_steps=args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters,
+                oversample=args.lowrank_oversample,
+                ns_steps=args.lowrank_ns_steps,
+                lazy_q_update_gap=args.lazy_q_update_gap,
+                lazy_q_use_b_ema=args.lazy_q_use_b_ema,
+                lazy_q_b_ema_decay=args.lazy_q_b_ema_decay,
+                lowrank_rescale=(args.lowrank_scale_mode == 'sqrt'),
+                auto_init_rank_start=args.lowrank_auto_init_rank_start,
+                init_probe_steps=args.lowrank_init_probe_steps,
+                init_energy=args.lowrank_init_energy,
+                init_round_multiple=args.lowrank_init_round_multiple,
+            )
+        )
+        optimizer = SingleDeviceAutoLazyQWithAuxAdam(aux_param_groups)
+        print(
+            f'INFO: Lazy-Q optimizer configured. Hidden params: {len(muon_params)}, '
+            f'Aux params: {len(adam_params)}. '
+        )
+    else:
+        raise ValueError(
+            f"Unsupported optimizer '{args.optimizer}'. Supported: adam, ori-adam, aux-sign, "
+            f"aux-sign-auto-cos-inc, aux-sign-step-rank, aux-sign-rank-adaptive-ns, aux-sign-lazy-q"
+        )
 
     start = 0
     basedir = args.basedir
     expname = args.expname
 
     ##########################
-    # Load checkpoints
-    if args.ft_path is not None and args.ft_path!='None':
+    if args.ft_path is not None and args.ft_path != 'None':
         ckpts = [args.ft_path]
     else:
         ckpts = [os.path.join(basedir, expname, f) for f in sorted(os.listdir(os.path.join(basedir, expname))) if 'tar' in f]
@@ -893,53 +783,39 @@ def create_nerf(args, effective_total_iters=None, effective_rank_schedule_steps=
         start = ckpt['global_step']
         ckpt_opt_name = ckpt.get('optimizer_name')
 
-        # Load model
         model.load_state_dict(ckpt['network_fn_state_dict'])
         if model_fine is not None and ckpt.get('network_fine_state_dict') is not None:
             model_fine.load_state_dict(ckpt['network_fine_state_dict'])
 
-        # if 'optimizer_state_dict' in ckpt:
-        #     optimizer.load_state_dict(ckpt['optimizer_state_dict'])
-        #     print('Loaded optimizer_state_dict from checkpoint.')
-        # elif 'optimizer_muon_state_dict' in ckpt or 'optimizer_adam_state_dict' in ckpt:
-        #     print('Legacy split optimizer checkpoint detected: skipping optimizer state reload because the current code uses a unified optimizer state_dict.')
         if 'optimizer_state_dict' in ckpt and ckpt_opt_name == args.optimizer:
             optimizer.load_state_dict(ckpt['optimizer_state_dict'])
             print('Loaded optimizer_state_dict from checkpoint.')
         else:
             print('Skipped optimizer_state_dict reload (optimizer mismatch or missing optimizer_name).')
 
-    _refresh_optimizer_horizon_after_load(
-        optimizer,
-        effective_total_iters=effective_total_iters,
-        effective_rank_schedule_steps=effective_rank_schedule_steps,
-    )
-
     ##########################
 
     render_kwargs_train = {
-        'network_query_fn' : network_query_fn,
-        'perturb' : args.perturb,
-        'N_importance' : args.N_importance,
-        'network_fine' : model_fine,
-        'N_samples' : args.N_samples,
-        'network_fn' : model,
-        'use_viewdirs' : args.use_viewdirs,
-        'white_bkgd' : args.white_bkgd,
-        'raw_noise_std' : args.raw_noise_std,
+        'network_query_fn': network_query_fn,
+        'perturb': args.perturb,
+        'N_importance': args.N_importance,
+        'network_fine': model_fine,
+        'N_samples': args.N_samples,
+        'network_fn': model,
+        'use_viewdirs': args.use_viewdirs,
+        'white_bkgd': args.white_bkgd,
+        'raw_noise_std': args.raw_noise_std,
     }
 
-    # NDC only good for LLFF-style forward facing data
     if args.dataset_type != 'llff' or args.no_ndc:
         print('Not ndc!')
         render_kwargs_train['ndc'] = False
         render_kwargs_train['lindisp'] = args.lindisp
 
-    render_kwargs_test = {k : render_kwargs_train[k] for k in render_kwargs_train}
+    render_kwargs_test = {k: render_kwargs_train[k] for k in render_kwargs_train}
     render_kwargs_test['perturb'] = False
     render_kwargs_test['raw_noise_std'] = 0.
 
-    # return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer_muon, optimizer_adam
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer
 
 
@@ -959,7 +835,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
 
     dists = z_vals[...,1:] - z_vals[...,:-1]
-    dists = torch.cat([dists, torch.tensor([1e10], device=dists.device, dtype=dists.dtype).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
+    dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
 
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
 
@@ -976,7 +852,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 
     alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
     # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
-    weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1), device=alpha.device, dtype=alpha.dtype), 1.-alpha + 1e-10], -1), -1)[:, :-1]
+    weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
     rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
     depth_map = torch.sum(weights * z_vals, -1)
@@ -1038,7 +914,7 @@ def render_rays(ray_batch,
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
-    t_vals = torch.linspace(0., 1., steps=N_samples, device=ray_batch.device, dtype=ray_batch.dtype)
+    t_vals = torch.linspace(0., 1., steps=N_samples)
     if not lindisp:
         z_vals = near * (1.-t_vals) + far * (t_vals)
     else:
@@ -1052,7 +928,7 @@ def render_rays(ray_batch,
         upper = torch.cat([mids, z_vals[...,-1:]], -1)
         lower = torch.cat([z_vals[...,:1], mids], -1)
         # stratified samples in those intervals
-        t_rand = torch.rand(z_vals.shape, device=z_vals.device, dtype=z_vals.dtype)
+        t_rand = torch.rand(z_vals.shape)
 
         # Pytest, overwrite u with numpy's fixed random numbers
         if pytest:
@@ -1282,30 +1158,63 @@ def config_parser():
         default=8,
         help="Round the auto-selected rank_start up to this multiple.",
     )
-
-    # Seesaw scheduler (Meterez et al., ICLR 2026)
-    parser.add_argument("--seesaw_enabled", action="store_true",
-                        help="Use the Seesaw cosine-step LR + batch-size scheduler.")
-    parser.add_argument("--seesaw_boundary_decay", type=float, default=2.0,
-                        help="Boundary decay factor gamma for the cosine-step approximation. gamma=2 uses the points where the cosine LR would halve.")
-    parser.add_argument("--seesaw_lr_decay", type=float, default=None,
-                        help="Actual LR decay applied at each Seesaw boundary. Default: gamma / sqrt(beta), i.e. the NSGD equivalence line.")
-    parser.add_argument("--seesaw_alpha", type=float, default=None,
-                        help="[Deprecated] Backward-compatible alias for seesaw_boundary_decay.")
-    parser.add_argument("--seesaw_beta", type=float, default=2.0,
-                        help="Per-phase batch-growth factor beta.")
-    parser.add_argument("--seesaw_warmup_steps", type=int, default=0,
-                        help="Optional linear warmup steps before Seesaw. Default 0 for INR.")
-    parser.add_argument("--seesaw_warmup_frac", type=float, default=0.0,
-                        help="If >0 and seesaw_warmup_steps==0, use round(seesaw_warmup_frac * N_iters) warmup steps.")
-    parser.add_argument("--seesaw_max_N_rand", type=int, default=None,
-                        help="Hard cap on ray batch size at late phases (default: N_rand * 64).")
-    parser.add_argument("--seesaw_max_phases", type=int, default=64,
-                        help="Safety cap on the number of Seesaw phases.")
-    parser.add_argument("--train_rays_per_render", type=int, default=4096,
-                        help="OOM-safe microbatch size for training renders. 0 uses the full current N_rand.")
-    parser.add_argument("--train_retraw", action='store_true',
-                        help="If set, keep raw volumetric outputs during training renders. Disabled by default to save memory.")
+    parser.add_argument(
+        "--discrete_rank_num_stages",
+        type=int,
+        default=8,
+        help="Number of plateaus used by the discrete step-rank optimizer.",
+    )
+    parser.add_argument(
+        "--adaptive_ns_min_steps",
+        type=int,
+        default=2,
+        help="Minimum Newton-Schulz iterations for the rank-adaptive-NS optimizer.",
+    )
+    parser.add_argument(
+        "--adaptive_ns_max_steps",
+        type=int,
+        default=5,
+        help="Maximum Newton-Schulz iterations for the rank-adaptive-NS optimizer.",
+    )
+    parser.add_argument(
+        "--lazy_q_update_gap",
+        type=int,
+        default=100,
+        help="Refresh gap (in optimizer steps) for the progressive lazy-Q optimizer.",
+    )
+    parser.add_argument(
+        "--lazy_q_use_b_ema",
+        action="store_true",
+        help="If set, use EMA on the projected matrix B = Q^T X in the progressive lazy-Q optimizer.",
+    )
+    parser.add_argument(
+        "--lazy_q_b_ema_decay",
+        type=float,
+        default=0.9,
+        help="EMA decay for the projected matrix B in the progressive lazy-Q optimizer.",
+    )
+    parser.add_argument(
+        "--step_rank_lazy_q_enabled",
+        action="store_true",
+        help="If set, enable lazy-Q refresh inside the discrete step-rank optimizer.",
+    )
+    parser.add_argument(
+        "--step_rank_lazy_q_update_gap",
+        type=int,
+        default=100,
+        help="Refresh gap (in optimizer steps) for the discrete step-rank optimizer when lazy-Q is enabled.",
+    )
+    parser.add_argument(
+        "--step_rank_lazy_q_use_b_ema",
+        action="store_true",
+        help="If set, use EMA on the projected matrix B = Q^T X inside the discrete step-rank optimizer when lazy-Q is enabled.",
+    )
+    parser.add_argument(
+        "--step_rank_lazy_q_b_ema_decay",
+        type=float,
+        default=0.9,
+        help="EMA decay for the projected matrix B in the discrete step-rank optimizer when lazy-Q is enabled.",
+    )
 
     return parser
 
@@ -1416,19 +1325,9 @@ def train():
         with open(f, 'w') as file:
             file.write(open(args.config, 'r').read())
 
-    seesaw = _build_seesaw_from_args(args)
-    effective_total_iters = _resolve_effective_total_iters(args, seesaw)
-    effective_lowrank_schedule_steps = _resolve_effective_lowrank_schedule_steps(args, seesaw)
-    args.effective_total_iters = effective_total_iters
-    args.effective_lowrank_schedule_steps = effective_lowrank_schedule_steps
-
     #? CHANGE: Create nerf model
     # render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer_muon, optimizer_adam = create_nerf(args)
-    render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(
-        args,
-        effective_total_iters=effective_total_iters,
-        effective_rank_schedule_steps=effective_lowrank_schedule_steps,
-    )
+    render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args)
     global_step = start
 
     results_path = os.path.join(basedir, expname, 'results.txt')
@@ -1492,17 +1391,7 @@ def train():
     if use_batching:
         rays_rgb = torch.Tensor(rays_rgb).to(device)
 
-    if seesaw is not None:
-        print(seesaw.describe())
-        print(
-            f"[RankSchedule] original_steps="
-            f"{args.lowrank_schedule_steps if args.lowrank_schedule_steps > 0 else args.N_iters} "
-            f"-> effective_steps={effective_lowrank_schedule_steps}"
-        )
-        N_iters = effective_total_iters + 1
-    else:
-        print(f"[RankSchedule] effective_steps={effective_lowrank_schedule_steps}")
-        N_iters = args.N_iters + 1
+    N_iters = args.N_iters + 1
     print('Begin')
     print('TRAIN views are', i_train)
     print('TEST views are', i_test)
@@ -1512,39 +1401,23 @@ def train():
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
     
     start = start + 1
-    if start >= N_iters:
-        print(f"No optimization steps left: start={start}, total_steps={N_iters-1}")
-        return
-
-    current_train_rays_per_render = int(args.train_rays_per_render) if int(args.train_rays_per_render) > 0 else int(args.N_rand)
-
     train_start_time = time.time()
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if seesaw is not None:
-            sched = seesaw.step(global_step)
-            new_muon_lrate = sched["lr_muon"]
-            new_adam_lrate = sched["lr_adam"]
-            N_rand = int(sched["N_rand"])
-            current_phase = sched["phase"]
-            current_is_warmup = bool(sched["is_warmup"])
-        else:
-            decay_rate = 0.1
-            decay_steps = args.lrate_decay * 1000
-            new_muon_lrate = args.muon_lrate * (decay_rate ** (global_step / decay_steps))
-            new_adam_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
-            current_phase = None
-            current_is_warmup = False
-
-        _apply_dual_branch_lrs(optimizer, new_muon_lrate, new_adam_lrate, optimizer_name=args.optimizer)
-
         # Sample random ray batch
         if use_batching:
-            # Random over all images (wraparound keeps the exact batch size even when N_rand changes)
-            batch, i_batch, rays_rgb = _sample_rays_batch(rays_rgb, i_batch, N_rand)
+            # Random over all images
+            batch = rays_rgb[i_batch:i_batch+N_rand] # [B, 2+1, 3*?]
             batch = torch.transpose(batch, 0, 1)
             batch_rays, target_s = batch[:2], batch[2]
+
+            i_batch += N_rand
+            if i_batch >= rays_rgb.shape[0]:
+                print("Shuffle data after an epoch!")
+                rand_idx = torch.randperm(rays_rgb.shape[0])
+                rays_rgb = rays_rgb[rand_idx]
+                i_batch = 0
 
         else:
             # Random from one image
@@ -1570,8 +1443,7 @@ def train():
                     coords = torch.stack(torch.meshgrid(torch.linspace(0, H-1, H), torch.linspace(0, W-1, W)), -1)  # (H, W, 2)
 
                 coords = torch.reshape(coords, [-1,2])  # (H * W, 2)
-                replace = bool(int(N_rand) > int(coords.shape[0]))
-                select_inds = np.random.choice(coords.shape[0], size=[N_rand], replace=replace)  # (N_rand,)
+                select_inds = np.random.choice(coords.shape[0], size=[N_rand], replace=False)  # (N_rand,)
                 select_coords = coords[select_inds].long()  # (N_rand, 2)
                 rays_o = rays_o[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
@@ -1579,19 +1451,70 @@ def train():
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
 
         #####  Core optimization loop  #####
-        loss, img_loss, psnr, used_train_rays_per_render = _perform_train_step(
-            H,
-            W,
-            K,
-            batch_rays,
-            target_s,
-            render_kwargs_train,
-            args,
-            optimizer,
-            grad_vars,
-            microbatch_rays=min(current_train_rays_per_render, int(N_rand)),
-        )
-        current_train_rays_per_render = min(current_train_rays_per_render, int(used_train_rays_per_render))
+        rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
+                                                verbose=i < 10, retraw=True,
+                                                **render_kwargs_train)
+
+        # optimizer_muon.zero_grad()
+        # optimizer_adam.zero_grad()
+        optimizer.zero_grad()
+        img_loss = img2mse(rgb, target_s)
+        trans = extras['raw'][...,-1]
+        loss = img_loss
+        psnr = mse2psnr(img_loss)
+
+        if 'rgb0' in extras:
+            img_loss0 = img2mse(extras['rgb0'], target_s)
+            loss = loss + img_loss0
+            psnr0 = mse2psnr(img_loss0)
+
+        if "shampoo" in args.optimizer:
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(grad_vars, max_norm=1.0)
+            optimizer.step()
+        else: 
+            loss.backward()
+            # optimizer_muon.step()
+            # optimizer_adam.step()
+            optimizer.step()
+
+        # NOTE: IMPORTANT!
+        ###   update learning rate   ###
+        # decay_rate = 0.1
+        # decay_steps = args.lrate_decay * 1000
+        # new_muon_lrate = args.muon_lrate * (decay_rate ** (global_step / decay_steps))
+        # new_adam_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
+        # import pdb; pdb.set_trace()
+        # for param_group in optimizer_muon.param_groups:
+        #     param_group['lr'] = new_muon_lrate
+        # for param_group in optimizer_adam.param_groups:
+        #     param_group['lr'] = new_adam_lrate
+
+
+        #! (방법1) optimizer schedule도 실험
+        decay_rate = 0.1
+        decay_steps = args.lrate_decay * 1000
+        new_muon_lrate = args.muon_lrate * (decay_rate ** (global_step / decay_steps))
+        new_adam_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
+        for param_group in optimizer.param_groups:
+            if param_group.get('use_muon', False):
+                param_group['lr'] = new_muon_lrate
+            else:
+                param_group['lr'] = new_adam_lrate
+    
+        #! (방법2)        
+        # decay_rate = 0.1
+        # decay_steps = args.lrate_decay * 1000
+        # decay = decay_rate ** (global_step / decay_steps)
+        # if "aux" in args.optimizer:
+        #     optimizer.param_groups[0]['lr'] = args.muon_lrate * decay   # Muon group
+        #     optimizer.param_groups[1]['lr'] = args.lrate * decay        # Adam group
+        # else:
+        #     if args.optimizer in ['y-muon', 'muon']:
+        #         optimizer.param_groups[0]['lr'] = args.muon_lrate * decay
+        #     else:
+        #         optimizer.param_groups[0]['lr'] = args.lrate * decay
+        ################################
 
         dt = time.time()-time0
         # print(f"Step: {global_step}, Loss: {loss}, Time: {dt}")
@@ -1658,15 +1581,7 @@ def train():
 
         #// val
         if i % args.i_print==0:
-            if seesaw is not None:
-                phase_label = 'warmup' if current_is_warmup else current_phase
-                tqdm.write(
-                    f"[TRAIN] Iter: {i} Loss: {loss.item()}  PSNR: {psnr.item()}  "
-                    f"phase={phase_label} N_rand={N_rand} train_rays_per_render={current_train_rays_per_render} "
-                    f"lr_muon={new_muon_lrate:.3e} lr_adam={new_adam_lrate:.3e}"
-                )
-            else:
-                tqdm.write(f"[TRAIN] Iter: {i} Loss: {loss.item()}  PSNR: {psnr.item()}")
+            tqdm.write(f"[TRAIN] Iter: {i} Loss: {loss.item()}  PSNR: {psnr.item()}")
             if "aux" in args.optimizer:
                 append_results_log_optim(results_path, i, global_step, loss, psnr, optimizer)
             else:
@@ -1702,6 +1617,28 @@ if __name__=='__main__':
 
     train()
 
-#! 100k > 63791
-#// (Vast) CUDA_VISIBLE_DEVICES=0 python run_nerf_seesaw.py --config configs/lego.txt --basedir logs --expname lego_seesaw_aux-auto --optimizer aux-sign-auto-cos-inc --seesaw_enabled --seesaw_boundary_decay 2.0 --seesaw_beta 2.0 --train_rays_per_render 4096 --seesaw_max_N_rand 8192 --N_iters 100000
-#@ (Vast) CUDA_VISIBLE_DEVICES=1 python run_nerf_seesaw.py --config configs/lego.txt --basedir logs --expname lego_seesaw_aux-sign --optimizer aux-sign --seesaw_enabled --seesaw_boundary_decay 2.0 --seesaw_beta 2.0 --train_rays_per_render 4096 --seesaw_max_N_rand 8192 --N_iters 100000
+"""
+#@ progressive lazy-Q + B-EMA:
+python run_nerf_auto_clean.py \
+  --config configs/lego.txt \
+  --optimizer aux-sign-lazy-q \
+  --lazy_q_update_gap 100 \
+  --lazy_q_use_b_ema \
+  --lazy_q_b_ema_decay 0.95
+
+#@ discrete step-rank + lazy Q:
+python run_nerf_auto_clean.py \
+  --config configs/lego.txt \
+  --optimizer aux-sign-step-rank \
+  --step_rank_lazy_q_enabled \
+  --step_rank_lazy_q_update_gap 100
+
+#@ discrete step-rank + lazy Q + B-EMA:
+python run_nerf_auto_clean.py \
+  --config configs/lego.txt \
+  --optimizer aux-sign-step-rank \
+  --step_rank_lazy_q_enabled \
+  --step_rank_lazy_q_update_gap 100 \
+  --step_rank_lazy_q_use_b_ema \
+  --step_rank_lazy_q_b_ema_decay 0.95
+"""
