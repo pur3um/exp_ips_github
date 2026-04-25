@@ -1823,25 +1823,33 @@ if __name__=='__main__':
 --optimizer aux-sign
 --optimizer aux-sign10-rsclF
 
-# 1) 메인 후보: micro-warmup -> stable -> late linear decay
-CUDA_VISIBLE_DEVICES=0 python run_nerf_ranksched.py \
+CUDA_VISIBLE_DEVICES=0 python run_nerf_ranksched_lazyq.py \
+  --basedir logs/rank_wsd_lazyq \
+  --expname aux-sign-ranksched-lazy-q_gap1000 \
   --config configs/lego.txt \
-  --expname lego_rankwsd_auto \
-  --optimizer aux-sign-auto-cos-inc \
+  --optimizer aux-sign-ranksched-lazy-q \
   --train_scheduler rank_wsd \
-  --muon_lrate 3e-3 \
   --lowrank_rank_start 150 \
   --lowrank_rank_end 250 \
-  --lowrank_auto_init_rank_start
+  --lowrank_auto_init_rank_start \
+  --lazy_q_update_gap 1000 \
+  --lazy_q_rank_refresh_stride 8 \
+  --lazy_q_use_b_ema true \
+  --lazy_q_b_ema_decay 0.9 \
+  --sched_warmup_frac 0.01
   
-# 2) 강한 baseline: micro-warmup -> cosine decay
-CUDA_VISIBLE_DEVICES=0 python run_nerf_ranksched.py \
+CUDA_VISIBLE_DEVICES=1 python run_nerf_ranksched_lazyq.py \
+  --basedir logs/warmup_cosine_lazyq \
+  --expname aux-sign-ranksched-lazy-q_gap1000 \
   --config configs/lego.txt \
-  --expname lego_cosine_auto \
-  --optimizer aux-sign-auto-cos-inc \
+  --optimizer aux-sign-ranksched-lazy-q \
   --train_scheduler warmup_cosine \
-  --muon_lrate 3e-3 \
   --lowrank_rank_start 150 \
   --lowrank_rank_end 250 \
-  --lowrank_auto_init_rank_start
+  --lowrank_auto_init_rank_start \
+  --lazy_q_update_gap 1000 \
+  --lazy_q_rank_refresh_stride 8 \
+  --lazy_q_use_b_ema true \
+  --lazy_q_b_ema_decay 0.9 \
+  --sched_warmup_frac 0.01
 """
