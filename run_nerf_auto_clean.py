@@ -1619,11 +1619,20 @@ if __name__=='__main__':
 
 """
 #@ progressive lazy-Q + B-EMA:
-python run_nerf_auto_clean.py \
+CUDA_VISIBLE_DEVICES=1 python run_nerf_auto_clean.py \
   --config configs/lego.txt \
   --optimizer aux-sign-lazy-q \
+  --basedir logs \
+  --expname lazy_q_ema \
   --lazy_q_update_gap 100 \
   --lazy_q_use_b_ema \
+  --lazy_q_b_ema_decay 0.95
+CUDA_VISIBLE_DEVICES=0 python run_nerf_auto_clean.py \
+  --config configs/lego.txt \
+  --optimizer aux-sign-lazy-q \
+  --basedir logs \
+  --expname lazy_q \
+  --lazy_q_update_gap 100 \
   --lazy_q_b_ema_decay 0.95
 
 #@ discrete step-rank + lazy Q:
