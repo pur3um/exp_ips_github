@@ -1,0 +1,69 @@
+[I 2026-04-29 15:30:14,649] A new study created in RDB with name: chair_aux-sign-auto-cos-inc_stage1only_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only
+[DONE] Summary saved to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/chair/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/chair_aux-sign-auto-cos-inc_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only_summary.json
+Traceback (most recent call last):
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 213, in _run_trial
+    updated_state, values, warning_message = _tell_with_warning(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_tell.py", line 106, in _tell_with_warning
+    frozen_trial = _get_frozen_trial(study, trial)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_tell.py", line 40, in _get_frozen_trial
+    return study._storage.get_trial(trial_id)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_cached_storage.py", line 211, in get_trial
+    return self._backend.get_trial(trial_id)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_rdb/storage.py", line 780, in get_trial
+    frozen_trial = self._build_frozen_trial_from_trial_model(trial_model)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_rdb/storage.py", line 893, in _build_frozen_trial_from_trial_model
+    attr.key: json.loads(attr.value_json) for attr in trial.system_attributes
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/attributes.py", line 569, in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/attributes.py", line 1096, in get
+    value = self._fire_loader_callables(state, key, passive)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/attributes.py", line 1131, in _fire_loader_callables
+    return self.callable_(state, passive)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/strategies.py", line 978, in _load_for_state
+    return self._emit_lazyload(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/strategies.py", line 1141, in _emit_lazyload
+    result = session.execute(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 2249, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1821, in _execute_context
+    self._handle_dbapi_exception(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 2366, in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1815, in _execute_context
+    context = constructor(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/default.py", line 1416, in _init_compiled
+    self.compiled_parameters = [
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/default.py", line 1417, in <listcomp>
+    compiled.construct_params(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/sql/compiler.py", line 1884, in construct_params
+    if self.cache_key is None:
+  File "stage1_optims_lr_decay_mlr_search.py", line 61, in signal_handler
+    raise KeyboardInterrupt
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "stage1_optims_lr_decay_mlr_search.py", line 354, in <module>
+    main()
+  File "stage1_optims_lr_decay_mlr_search.py", line 343, in main
+    study.optimize(objective, n_trials=remaining, callbacks=[callback])
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/study.py", line 490, in optimize
+    _optimize(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial_id = _run_trial(study, func, catch)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 227, in _run_trial
+    if updated_state == TrialState.COMPLETE:
+UnboundLocalError: local variable 'updated_state' referenced before assignment
