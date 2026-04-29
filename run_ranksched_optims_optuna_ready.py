@@ -259,6 +259,46 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     ret_dict = {k : all_ret[k] for k in all_ret if k not in k_extract}
     return ret_list + [ret_dict]
 
+
+def evaluate_val_psnr(i_val, poses, images, hwf, K, args, render_kwargs_test, max_views=None):
+    H, W, _ = hwf
+    val_ids = list(i_val)
+    if max_views is not None and max_views > 0:
+        val_ids = val_ids[:max_views]
+    if len(val_ids) == 0:
+        return float("-inf")
+
+    psnrs = []
+    with torch.no_grad():
+        for vid in val_ids:
+            target = images[vid]
+            if isinstance(target, np.ndarray):
+                target = torch.tensor(target, dtype=torch.float32, device=device)
+            else:
+                target = target.to(device)
+            pose = poses[vid, :3, :4]
+            rgb, _, _, _ = render(H, W, K, chunk=args.chunk, c2w=pose, **render_kwargs_test)
+            loss = img2mse(rgb, target)
+            psnrs.append(mse2psnr(loss).item())
+    return float(np.mean(psnrs))
+
+def save_checkpoint(path, global_step, render_kwargs_train, optimizer, best_iter=None, best_val_psnr=None):
+    ckpt = {
+        "global_step": global_step,
+        "network_fn_state_dict": render_kwargs_train["network_fn"].state_dict(),
+        "network_fine_state_dict": (
+            render_kwargs_train["network_fine"].state_dict()
+            if render_kwargs_train["network_fine"] is not None else None
+        ),
+        "optimizer_state_dict": optimizer.state_dict(),
+    }
+    if best_iter is not None:
+        ckpt["best_iter"] = int(best_iter)
+    if best_val_psnr is not None:
+        ckpt["best_val_psnr"] = float(best_val_psnr)
+    torch.save(ckpt, path)
+
+
 def render_path_with_metrics(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0, lpips_net='alex'):
     rgbs, disps = render_path(
         render_poses, hwf, K, chunk, render_kwargs,
@@ -1497,6 +1537,12 @@ def train():
     poses = torch.Tensor(poses).to(device)
     if use_batching:
         rays_rgb = torch.Tensor(rays_rgb).to(device)
+    
+    best_val_psnr = -1e9
+    best_iter = -1
+    best_ckpt_path = os.path.join(expdir, 'best.tar')
+    start = start + 1
+    train_start_time = time.time()
 
     print(train_scheduler.describe())
     N_iters = int(getattr(args, '_effective_total_iters', args.N_iters)) + 1
@@ -1618,6 +1664,15 @@ def train():
             }, path)
             print('Saved checkpoints at', path)
 
+        if args.eval_every > 0 and i % args.eval_every == 0 and i > 0:
+            val_psnr = evaluate_val_psnr(i_val, poses, images, hwf, K, args, render_kwargs_test, max_views=args.max_eval_views)
+            if val_psnr > best_val_psnr:
+                best_val_psnr = val_psnr
+                best_iter = i
+                save_checkpoint(best_ckpt_path, global_step, render_kwargs_train, optimizer, best_iter, best_val_psnr)
+                tqdm.write(f"[BEST] Saved best checkpoint to {best_ckpt_path} (PSNR={best_val_psnr:.4f}, iter={best_iter})")
+            tqdm.write(f"[VAL] Iter: {i} mean PSNR: {val_psnr:.4f} | best: {best_val_psnr:.4f} @ {best_iter}")
+
         if i%args.i_video==0 and i > 0:
             # Turn on testing mode
             with torch.no_grad():
@@ -1691,6 +1746,24 @@ def train():
             tqdm.write(f"[VAL]   Iter: {i} PSNR: {val_psnr.item()}")
         
         global_step += 1
+    if args.metric_out:
+        os.makedirs(os.path.dirname(args.metric_out) or '.', exist_ok=True)
+        with open(args.metric_out, 'w') as f:
+            json.dump({
+                'best_val_psnr': float(best_val_psnr),
+                'best_iter': int(best_iter),
+                'best_ckpt_path': best_ckpt_path if best_iter >= 0 else '',
+                'lrate': float(args.lrate),
+                'muon_lrate': float(args.muon_lrate),
+                'expname': args.expname,
+                'N_iters': int(args.N_iters),
+                'eval_every': int(args.eval_every),
+                'max_eval_views': int(args.max_eval_views),
+                'elapsed_sec': float(time.time() - train_start_time),
+                'optimizer': args.optimizer,
+                'seed': int(args.seed),
+            }, f, indent=2)
+        print(f"Saved metric json to {args.metric_out}")
 
     if "aux" in args.optimizer:
         append_results_log_optim(results_path, i, global_step, loss, psnr, optimizer)

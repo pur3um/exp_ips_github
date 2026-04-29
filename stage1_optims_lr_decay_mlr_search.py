@@ -304,7 +304,7 @@ def main():
         json.dump({
             "scene": scene,
             "budget": budget_tag,
-            "scene_dir": str(scene_dir),
+            "scene_dir": str(scene_dir),g
             "study_name": study_name,
             "storage": storage,
             "target_total_trials": args.n_trials,
