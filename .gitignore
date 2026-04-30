@@ -209,3 +209,9 @@ __marimo__/
 data/**
 !data/
 !data/download.sh
+
+*.png
+*.PNG
+*.jpg
+
+logs_104/sched_old/**

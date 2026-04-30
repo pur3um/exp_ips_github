@@ -38,6 +38,7 @@ def parse_pair(value):
         raise ValueError(f"Expected a comma-separated pair like '0.9,0.95', got {value!r}")
     return float(parts[0]), float(parts[1])
 
+from optims.muon import SingleDeviceMuonWithAuxAdam
 from optims.lr_sign import SingleDeviceSignWithAuxAdam
 from optims.lr_sign10_rsclF import SingleDeviceSign10RsclFWithAuxAdam
 from optims.auto_cos_inc_rank import SingleDeviceAutoCosIncWithAuxAdam
@@ -427,7 +428,7 @@ def init_results_log_muon(results_path, args, optimizer_muon, optimizer_adam, st
     with open(results_path, 'a') as f:
         f.write('=' * 100 + '\n')
         f.write(f"run_start_time: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write("script: run_nerf_ranksched.py\n")
+        f.write("script: run_nerf_ranksched_revised.py\n")
         f.write(f"expname: {args.expname}\n")
         f.write(f"dataset_type: {args.dataset_type}\n")
         f.write(f"datadir: {args.datadir}\n")
@@ -453,7 +454,7 @@ def init_results_log_optim(results_path, args, optimizer, start):
     with open(results_path, 'a') as f:
         f.write('=' * 100 + '\n')
         f.write(f"run_start_time: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write("script: run_nerf_ranksched.py\n")
+        f.write("script: run_nerf_ranksched_revised.py\n")
         f.write(f"expname: {args.expname}\n")
         f.write(f"dataset_type: {args.dataset_type}\n")
         f.write(f"datadir: {args.datadir}\n")
@@ -470,11 +471,18 @@ def init_results_log_optim(results_path, args, optimizer, start):
         f.write(f"  muon_tensor_count: {optim_tensor_count}\n")
         f.write(f"  muon_total_params: {optim_total_params}\n")
         f.write("scheduler_setup:\n")
-        f.write(f"  scheduler_name: {getattr(args, 'train_scheduler', 'rank_wsd')}\n")
-        f.write(f"  warmup_steps: {getattr(args, '_resolved_sched_warmup_steps', 0)}\n")
-        f.write(f"  min_lr_ratio: {getattr(args, 'sched_min_lr_ratio', 0.1)}\n")
-        if getattr(args, 'train_scheduler', 'rank_wsd') == 'rank_wsd':
-            f.write(f"  decay_start_step: {getattr(args, '_resolved_decay_start_step', args.N_iters)}\n")
+        scheduler_name = getattr(args, 'train_scheduler', 'rank_wsd')
+        f.write(f"  scheduler_name: {scheduler_name}\n")
+        if scheduler_name in {'exp_decay', 'original'}:
+            f.write("  schedule_formula: lrate * 0.1 ** (global_step / (lrate_decay * 1000))\n")
+            f.write("  update_timing: after optimizer.step(), matching original run_nerf.py\n")
+            f.write(f"  base_lrate: {args.lrate}\n")
+            f.write(f"  lrate_decay_ksteps: {args.lrate_decay}\n")
+        else:
+            f.write(f"  warmup_steps: {getattr(args, '_resolved_sched_warmup_steps', 0)}\n")
+            f.write(f"  min_lr_ratio: {getattr(args, 'sched_min_lr_ratio', 0.1)}\n")
+            if scheduler_name == 'rank_wsd':
+                f.write(f"  decay_start_step: {getattr(args, '_resolved_decay_start_step', args.N_iters)}\n")
         if getattr(args, 'optimizer', '') == 'aux-lowrank-svd':
             f.write("  lowrank_schedule:\n")
             f.write(f"    rank_start: {args.lowrank_rank_start}\n")
@@ -687,6 +695,52 @@ def _sync_optimizer_schedule_config(optimizer, args, reset_rank_fields=False):
                 )
 
 
+def _uses_original_nerf_scheduler(args):
+    return getattr(args, 'train_scheduler', '') in {'exp_decay', 'original'}
+
+
+def _original_nerf_exp_decay_step(args, global_step):
+    """Return the exact LR schedule used in the original run_nerf.py.
+
+    Original NeRF updates the optimizer learning rate after optimizer.step():
+        lr = args.lrate * (0.1 ** (global_step / (args.lrate_decay * 1000)))
+
+    The original implementation assigns this single scalar LR to every optimizer
+    param group.  We keep that behavior here, including for auxiliary optimizers,
+    whenever --train_scheduler is 'exp_decay' or 'original'.
+    """
+    decay_rate = 0.1
+    decay_steps = float(args.lrate_decay) * 1000.0
+    if decay_steps <= 0.0:
+        raise ValueError(f"lrate_decay must be positive for original NeRF scheduler, got {args.lrate_decay}")
+
+    lr_ratio = decay_rate ** (float(global_step) / decay_steps)
+    new_lrate = float(args.lrate) * lr_ratio
+    return {
+        'lr_muon': new_lrate,
+        'lr_adam': new_lrate,
+        'N_rand': int(args.N_rand),
+        'phase_name': 'original_exp_decay',
+        'lr_ratio': lr_ratio,
+    }
+
+
+def _apply_original_nerf_lrs(optimizer, args, global_step):
+    sched = _original_nerf_exp_decay_step(args, global_step)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = sched['lr_adam']
+    return sched
+
+
+def _describe_original_nerf_scheduler(args):
+    decay_steps = float(args.lrate_decay) * 1000.0
+    return (
+        "Original NeRF exponential LR scheduler: "
+        f"lr = {args.lrate} * 0.1 ** (global_step / {decay_steps:g}); "
+        f"N_rand = {args.N_rand}; param_groups = single original LR"
+    )
+
+
 def _build_lr_scheduler(args):
     if args.train_scheduler == 'rank_wsd':
         return RankAwareWarmupStableLinearScheduler(
@@ -699,14 +753,19 @@ def _build_lr_scheduler(args):
             min_lr_ratio=args.sched_min_lr_ratio,
         )
 
-    return WarmupCosineScheduler(
-        base_lr_adam=args.lrate,
-        base_lr_muon=args.muon_lrate,
-        total_iters=args._effective_total_iters,
-        base_N_rand=args.N_rand,
-        warmup_steps=args._resolved_sched_warmup_steps,
-        min_lr_ratio=args.sched_min_lr_ratio,
-    )
+    elif args.train_scheduler == "warmup_cosine":
+        return WarmupCosineScheduler(
+            base_lr_adam=args.lrate,
+            base_lr_muon=args.muon_lrate,
+            total_iters=args._effective_total_iters,
+            base_N_rand=args.N_rand,
+            warmup_steps=args._resolved_sched_warmup_steps,
+            min_lr_ratio=args.sched_min_lr_ratio,
+        )
+    elif _uses_original_nerf_scheduler(args):
+        return None
+    else:
+        raise ValueError(f"Unsupported train_scheduler: {args.train_scheduler!r}")
 
 
 def _apply_optimizer_lrs(optimizer, muon_lr, adam_lr):
@@ -800,6 +859,12 @@ def create_nerf(args):
 
     if args.optimizer in ('ori-adam', 'adam'):
         optimizer = torch.optim.Adam(params=list(total_grad_vars), lr=args.lrate, betas=(0.9, 0.999))
+    elif args.optimizer == 'aux-muon':
+        optimizer = SingleDeviceMuonWithAuxAdam(aux_param_groups)
+        print(
+            f'INFO: Aux sign optimizer configured. Hidden params: {len(muon_params)}, '
+            f'Aux params: {len(adam_params)}.'
+        )
     elif args.optimizer == 'aux-sign':
         aux_param_groups[0].update(
             dict(
@@ -1205,7 +1270,7 @@ def config_parser():
                         help='total number of training iterations')
     
     # Muon optimizer options 0.02
-    parser.add_argument("--muon_lrate",   type=float, default=5e-4,)
+    parser.add_argument("--muon_lrate",   type=float, default=5e-4,) # 3e-3, 4e-3
     parser.add_argument("--muon_decay",   type=float, default=0.0,) #=muon_weight_decay
     parser.add_argument("--muon_momentum",   type=float, default=0.90,)
     # NEW
@@ -1237,7 +1302,7 @@ def config_parser():
     parser.add_argument("--optimizer",
                         type=str,
                         default='aux-sign-auto-cos-inc',
-                        choices=['adam', 'ori-adam', 'aux-sign', 'aux-sign-auto-cos-inc', 'aux-sign10-rsclF'],
+                        choices=['adam', 'aux-muon', 'ori-adam', 'aux-sign', 'aux-sign-auto-cos-inc', 'aux-sign10-rsclF'],
                         )
     
     # 재현성
@@ -1274,8 +1339,8 @@ def config_parser():
 
     # Scheduler options: main candidate vs strong baseline
     parser.add_argument("--train_scheduler", type=str, default='rank_wsd',
-                        choices=['rank_wsd', 'warmup_cosine'],
-                        help="LR scheduler family. 'rank_wsd' = micro-warmup -> stable plateau -> late linear decay. 'warmup_cosine' = micro-warmup -> cosine decay.")
+                        choices=['rank_wsd', 'warmup_cosine', 'exp_decay', 'original'],
+                        help="LR scheduler family. 'rank_wsd' = micro-warmup -> stable plateau -> late linear decay. 'warmup_cosine' = micro-warmup -> cosine decay. 'exp_decay'/'original' = original NeRF exponential decay.")
     parser.add_argument("--sched_warmup_steps", type=int, default=0,
                         help="Optional explicit warmup steps. If > 0, overrides sched_warmup_frac.")
     parser.add_argument("--sched_warmup_frac", type=float, default=0.01,
@@ -1318,6 +1383,7 @@ def train():
         args._resolved_sched_warmup_steps,
         args._effective_lowrank_schedule_steps if _optimizer_supports_progressive_rank(args.optimizer) else None,
     )
+    use_original_nerf_scheduler = _uses_original_nerf_scheduler(args)
     train_scheduler = _build_lr_scheduler(args)
 
     # Load data
@@ -1425,6 +1491,13 @@ def train():
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args)
     global_step = start
 
+    # For --train_scheduler exp_decay/original, initialize every param group
+    # with the same scalar LR used by the original run_nerf.py scheduler.  This
+    # is especially important for auxiliary optimizers whose Muon group may have
+    # been constructed with args.muon_lrate.
+    if use_original_nerf_scheduler:
+        _apply_original_nerf_lrs(optimizer, args, global_step)
+
     results_path = os.path.join(basedir, expname, 'results.txt')
     # init_results_log_muon(results_path, args, optimizer_muon, optimizer_adam, start)
     init_results_log_optim(results_path, args, optimizer, start)
@@ -1486,7 +1559,10 @@ def train():
     if use_batching:
         rays_rgb = torch.Tensor(rays_rgb).to(device)
 
-    print(train_scheduler.describe())
+    if use_original_nerf_scheduler:
+        print(_describe_original_nerf_scheduler(args))
+    else:
+        print(train_scheduler.describe())
     N_iters = int(getattr(args, '_effective_total_iters', args.N_iters)) + 1
     print('Begin')
     print('TRAIN views are', i_train)
@@ -1501,16 +1577,26 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        # Apply the selected LR schedule *before* sampling so the current step
-        # uses the correct LR and the rank-schedule-aware decay onset.
-        sched = train_scheduler.step(global_step)
-        new_muon_lrate = sched["lr_muon"]
-        new_adam_lrate = sched["lr_adam"]
-        N_rand = int(sched["N_rand"])
-        current_phase = sched["phase_name"]
-        current_lr_ratio = float(sched.get("lr_ratio", 1.0))
+        if use_original_nerf_scheduler:
+            # Match the original run_nerf.py behavior: keep N_rand fixed and
+            # update LR after optimizer.step() below.
+            sched = _original_nerf_exp_decay_step(args, global_step)
+            N_rand = int(sched["N_rand"])
+            current_phase = sched["phase_name"]
+            current_lr_ratio = float(sched.get("lr_ratio", 1.0))
+            new_muon_lrate = optimizer.param_groups[0]['lr']
+            new_adam_lrate = optimizer.param_groups[1]['lr'] if len(optimizer.param_groups) > 1 else optimizer.param_groups[0]['lr']
+        else:
+            # Apply the selected LR schedule *before* sampling so the current step
+            # uses the correct LR and the rank-schedule-aware decay onset.
+            sched = train_scheduler.step(global_step)
+            new_muon_lrate = sched["lr_muon"]
+            new_adam_lrate = sched["lr_adam"]
+            N_rand = int(sched["N_rand"])
+            current_phase = sched["phase_name"]
+            current_lr_ratio = float(sched.get("lr_ratio", 1.0))
 
-        _apply_optimizer_lrs(optimizer, new_muon_lrate, new_adam_lrate)
+            _apply_optimizer_lrs(optimizer, new_muon_lrate, new_adam_lrate)
 
         # Sample random ray batch
         if use_batching:
@@ -1586,6 +1672,17 @@ def train():
             # optimizer_adam.step()
             optimizer.step()
 
+        if use_original_nerf_scheduler:
+            # NOTE: original NeRF exponential LR update.
+            # This intentionally happens after optimizer.step(), matching
+            # run_nerf.py:
+            #   new_lrate = args.lrate * (0.1 ** (global_step / (args.lrate_decay * 1000)))
+            #   for param_group in optimizer.param_groups: param_group['lr'] = new_lrate
+            sched = _apply_original_nerf_lrs(optimizer, args, global_step)
+            new_muon_lrate = sched["lr_muon"]
+            new_adam_lrate = sched["lr_adam"]
+            current_phase = sched["phase_name"]
+            current_lr_ratio = float(sched.get("lr_ratio", 1.0))
 
         dt = time.time()-time0
         # print(f"Step: {global_step}, Loss: {loss}, Time: {dt}")
@@ -1692,38 +1789,3 @@ if __name__=='__main__':
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
 
     train()
-
-
-"""
---optimizer aux-sign
---optimizer aux-sign10-rsclF
-
-# 1) 메인 후보: micro-warmup -> stable -> late linear decay
-CUDA_VISIBLE_DEVICES=0 python run_nerf_ranksched.py \
-  --config configs/lego.txt \
-  --expname lego_rankwsd_auto \
-  --optimizer aux-sign-auto-cos-inc \
-  --train_scheduler rank_wsd \
-  --muon_lrate 3e-3 \
-  --lowrank_rank_start 150 \
-  --lowrank_rank_end 250 \
-  --lowrank_auto_init_rank_start
-  
-# 2) 강한 baseline: micro-warmup -> cosine decay
-CUDA_VISIBLE_DEVICES=0 python run_nerf_ranksched.py \
-  --config configs/lego.txt \
-  --expname lego_cosine_auto \
-  --optimizer aux-sign-auto-cos-inc \
-  --train_scheduler warmup_cosine \
-  --muon_lrate 3e-3 \
-  --lowrank_rank_start 150 \
-  --lowrank_rank_end 250 \
-  --lowrank_auto_init_rank_start
-
-CUDA_VISIBLE_DEVICES=1 python run_nerf_ranksched.py --basedir logs/sched/rankwsd --config configs/flower.txt --expname flower_auto_200k --optimizer aux-sign-auto-cos-inc --train_scheduler rank_wsd --muon_lrate 3e-3 --lowrank_rank_start 150 --lowrank_rank_end 250 --lowrank_auto_init_rank_start --N_iters 200000
-CUDA_VISIBLE_DEVICES=2 python run_nerf_ranksched.py --basedir logs/sched/cosine --config configs/fern.txt --expname fern_auto_200k --optimizer aux-sign-auto-cos-inc --train_scheduler rank_wsd --muon_lrate 3e-3 --lowrank_rank_start 150 --lowrank_rank_end 250 --lowrank_auto_init_rank_start --N_iters 200000
-CUDA_VISIBLE_DEVICES=3 python run_nerf_ranksched.py --basedir logs/sched/cosine --config configs/drums.txt --expname drums_auto_200k --optimizer aux-sign-auto-cos-inc --train_scheduler rank_wsd --muon_lrate 3e-3 --lowrank_rank_start 150 --lowrank_rank_end 250 --lowrank_auto_init_rank_start --N_iters 200000
-
-
-CUDA_VISIBLE_DEVICES=0 python run_nerf_ranksched.py --basedir logs/sched/rankwsd --config configs/room.txt --expname room_auto --optimizer aux-sign-auto-cos-inc --train_scheduler rank_wsd --muon_lrate 3e-3 --lowrank_rank_start 150 --lowrank_rank_end 250 --lowrank_auto_init_rank_start --N_iters 100000
-"""
