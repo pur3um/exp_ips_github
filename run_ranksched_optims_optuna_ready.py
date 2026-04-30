@@ -1,3 +1,4 @@
+import re
 import os, sys
 import numpy as np
 import imageio
@@ -728,6 +729,8 @@ def _sync_optimizer_schedule_config(optimizer, args, reset_rank_fields=False):
                     'cosine_inc_auto_start' if bool(args.lowrank_auto_init_rank_start) else 'cosine_inc_closed_form'
                 )
 
+def _is_numbered_ckpt(filename: str) -> bool:
+    return re.fullmatch(r"\d{6}\.tar", filename) is not None
 
 def _build_lr_scheduler(args):
     if args.train_scheduler == 'rank_wsd':
@@ -917,6 +920,13 @@ def create_nerf(args):
     start = 0
     basedir = args.basedir
     expname = args.expname
+    expdir = os.path.join(args.basedir, args.expname)
+    if args.ft_path is not None and args.ft_path != "None":
+        ckpts = [args.ft_path]
+    elif os.path.exists(expdir):
+        ckpts = [os.path.join(expdir, f) for f in sorted(os.listdir(expdir)) if _is_numbered_ckpt(f)]
+    else:
+        ckpts = []
 
     ##########################
     # Load checkpoints
@@ -1472,6 +1482,8 @@ def train():
         with open(f, 'w') as file:
             file.write(open(args.config, 'r').read())
 
+
+    expdir = os.path.join(args.basedir, args.expname)
     #? CHANGE: Create nerf model
     # render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer_muon, optimizer_adam = create_nerf(args)
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args)
@@ -1553,8 +1565,6 @@ def train():
 
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
-    
-    start = start + 1
     train_start_time = time.time()
     for i in trange(start, N_iters):
         time0 = time.time()

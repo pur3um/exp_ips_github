@@ -365,7 +365,7 @@ python stage1_optims_lr_decay_mlr_search.py \
   --n_iters 100000 \
   --eval_every 5000 \
   --max_eval_views 2 \
-  --gpu 5 \
+  --gpu 7 \
   --min_lr 3e-4 \
   --max_lr 3e-3 \
   --min_decay 100 \
