@@ -215,3 +215,5 @@ data/**
 *.jpg
 
 logs_104/sched_old/**
+logs_100k/**
+run_100k.sh
