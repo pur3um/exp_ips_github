@@ -1,0 +1,7 @@
+usage: stage1_optims_lr_decay_mlr_search.py [-h] --root ROOT [--run_file RUN_FILE] --config CONFIG [--n_trials N_TRIALS] [--n_iters N_ITERS]
+                                            [--eval_every EVAL_EVERY] [--max_eval_views MAX_EVAL_VIEWS] [--gpu GPU] [--min_lr MIN_LR] [--max_lr MAX_LR]
+                                            [--min_decay MIN_DECAY] [--max_decay MAX_DECAY] [--min_muon_lr MIN_MUON_LR] [--max_muon_lr MAX_MUON_LR]
+                                            [--muon_decay MUON_DECAY] [--muon_momentum MUON_MOMENTUM] [--optimizer OPTIMIZER] [--seed SEED]
+                                            [--n_startup_trials N_STARTUP_TRIALS] [--n_ei_candidates N_EI_CANDIDATES] [--deterministic]
+                                            [--lowrank_auto_init_rank_start]
+stage1_optims_lr_decay_mlr_search.py: error: unrecognized arguments: --expname second_try

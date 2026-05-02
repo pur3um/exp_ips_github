@@ -355,17 +355,18 @@ if __name__ == "__main__":
 
 
 """
-mkdir -p logs/ours_100k_lr_decay_mlr
+mkdir -p logs/ours2_100k_lr_decay_mlr
 Example: chair, drums, ficus, hotdog, lego, materials, mic, ship
 python stage1_optims_lr_decay_mlr_search.py \
-  --root /home/greenx9/nerf-pytorch \
+  --root /workspace/exp_ips_github \
   --run_file run_ranksched_optims_optuna_ready.py \
-  --config configs/ship.txt \
+  --expname second_try \
+  --config configs/drums.txt \
   --n_trials 20 \
   --n_iters 100000 \
   --eval_every 5000 \
   --max_eval_views 2 \
-  --gpu 7 \
+  --gpu  \
   --min_lr 3e-4 \
   --max_lr 3e-3 \
   --min_decay 100 \
@@ -376,7 +377,7 @@ python stage1_optims_lr_decay_mlr_search.py \
   --seed 0 \
   --n_startup_trials 5 \
   --lowrank_auto_init_rank_start \
-  > logs/ours_100k_lr_decay_mlr/ship_100k.log 2>&1
+  > logs/ours2_100k_lr_decay_mlr/drums_100k.log 2>&1
   
 
 """
