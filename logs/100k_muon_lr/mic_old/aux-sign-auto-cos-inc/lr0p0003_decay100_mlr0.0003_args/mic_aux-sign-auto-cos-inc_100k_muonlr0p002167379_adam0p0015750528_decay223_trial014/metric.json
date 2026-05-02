@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 32.13084602355957,
+  "best_iter": 100000,
+  "best_ckpt_path": "/home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/mic/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/mic_aux-sign-auto-cos-inc_100k_muonlr0p002167379_adam0p0015750528_decay223_trial014/best.tar",
+  "lrate": 0.0015750527540490304,
+  "muon_lrate": 0.0021673790355043686,
+  "expname": "mic_aux-sign-auto-cos-inc_100k_muonlr0p002167379_adam0p0015750528_decay223_trial014",
+  "N_iters": 100000,
+  "eval_every": 5000,
+  "max_eval_views": 2,
+  "elapsed_sec": 12554.05934882164,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}

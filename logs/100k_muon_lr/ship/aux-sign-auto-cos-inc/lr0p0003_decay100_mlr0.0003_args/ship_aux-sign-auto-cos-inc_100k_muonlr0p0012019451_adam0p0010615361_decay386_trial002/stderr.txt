@@ -1,8 +1,0 @@
-/venv/nerf/lib/python3.8/site-packages/torch/__init__.py:955: UserWarning: torch.set_default_tensor_type() is deprecated as of PyTorch 2.1, please use torch.set_default_dtype() and torch.set_default_device() as alternatives. (Triggered internally at ../torch/csrc/tensor/python_tensor.cpp:432.)
-  _C._set_default_tensor_type(t)
-Traceback (most recent call last):
-  File "/workspace/exp_ips_github/run_ranksched_optims_optuna_ready.py", line 1779, in <module>
-    train()
-  File "/workspace/exp_ips_github/run_ranksched_optims_optuna_ready.py", line 1543, in train
-    best_ckpt_path = os.path.join(expdir, 'best.tar')
-NameError: name 'expdir' is not defined

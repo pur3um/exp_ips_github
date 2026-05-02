@@ -19,7 +19,7 @@
     "muon_lrate": 0.001635335754309247
   },
   "best_trial_number": 0,
-  "n_complete_trials": 11,
+  "n_complete_trials": 12,
   "top_trials": [
     {
       "trial_number": 0,
@@ -38,6 +38,24 @@
       "stdout_log": "/home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ficus_aux-sign-auto-cos-inc_100k_muonlr0p0016353358_adam0p0010615361_decay386_trial000/stdout.txt",
       "stderr_log": "/home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ficus_aux-sign-auto-cos-inc_100k_muonlr0p0016353358_adam0p0010615361_decay386_trial000/stderr.txt",
       "cmd": "/home/greenx9/miniconda3/envs/nerf/bin/python /home/greenx9/nerf-pytorch/exp_ips_github/run_ranksched_optims_optuna_ready.py --config /home/greenx9/nerf-pytorch/exp_ips_github/configs/ficus.txt --basedir /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args --expname ficus_aux-sign-auto-cos-inc_100k_muonlr0p0016353358_adam0p0010615361_decay386_trial000 --optimizer aux-sign-auto-cos-inc --lrate 0.0010615360772719654 --lrate_decay 386 --muon_lrate 0.001635335754309247 --muon_decay 0.0 --muon_momentum 0.9 --N_iters 100000 --eval_every 5000 --max_eval_views 2 --metric_out /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ficus_aux-sign-auto-cos-inc_100k_muonlr0p0016353358_adam0p0010615361_decay386_trial000/metric.json --no_reload --seed 0 --lowrank_auto_init_rank_start"
+    },
+    {
+      "trial_number": 11,
+      "value": 29.37833309173584,
+      "muon_lrate": 0.0021112732276057943,
+      "min_lr": 0.0003,
+      "max_lr": 0.003,
+      "min_decay": 100.0,
+      "max_decay": 500.0,
+      "fixed_muon_decay": 0.0,
+      "fixed_muon_momentum": 0.9,
+      "expname": "ficus_aux-sign-auto-cos-inc_100k_muonlr0p0021112732_adam0p0004574103_decay129_trial011",
+      "trial_dir": "/home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ficus_aux-sign-auto-cos-inc_100k_muonlr0p0021112732_adam0p0004574103_decay129_trial011",
+      "best_iter": 100000,
+      "metric_out": "/home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ficus_aux-sign-auto-cos-inc_100k_muonlr0p0021112732_adam0p0004574103_decay129_trial011/metric.json",
+      "stdout_log": "/home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ficus_aux-sign-auto-cos-inc_100k_muonlr0p0021112732_adam0p0004574103_decay129_trial011/stdout.txt",
+      "stderr_log": "/home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ficus_aux-sign-auto-cos-inc_100k_muonlr0p0021112732_adam0p0004574103_decay129_trial011/stderr.txt",
+      "cmd": "/home/greenx9/miniconda3/envs/nerf/bin/python /home/greenx9/nerf-pytorch/exp_ips_github/run_ranksched_optims_optuna_ready.py --config /home/greenx9/nerf-pytorch/exp_ips_github/configs/ficus.txt --basedir /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args --expname ficus_aux-sign-auto-cos-inc_100k_muonlr0p0021112732_adam0p0004574103_decay129_trial011 --optimizer aux-sign-auto-cos-inc --lrate 0.00045741030960892004 --lrate_decay 129 --muon_lrate 0.0021112732276057943 --muon_decay 0.0 --muon_momentum 0.9 --N_iters 100000 --eval_every 5000 --max_eval_views 2 --metric_out /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/ficus/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ficus_aux-sign-auto-cos-inc_100k_muonlr0p0021112732_adam0p0004574103_decay129_trial011/metric.json --no_reload --seed 0 --lowrank_auto_init_rank_start"
     },
     {
       "trial_number": 8,

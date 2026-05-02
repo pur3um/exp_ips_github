@@ -301,4 +301,8 @@ python -u stage1_ranksched_botorch_4param.py \
   --optimizer aux-sign-auto-cos-inc \
   --train_scheduler rank_wsd \
   > logs/botorch_ranksched_4param/chair/chair_botorch_main.log 2>&1 &
+
+CUDA_VISIBLE_DEVICES=0 python run_ranksched_optims_optuna_ready.py --config configs/chair.txt --basedir logs/train_103 --expname chair_autowsd_100k_muonlr0p0048466298_adam0p0025513005_decay111_trial008 --optimizer aux-sign-auto-cos-inc --lrate 0.0025513004740846646 --lrate_decay 111 --muon_lrate 0.004846629789555252 --muon_decay 0.0 --muon_momentum 0.9 --N_iters 100000 --eval_every 10000 --max_eval_views 2 --metric_out logs/train_103/chair/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/chair_aux-sign-auto-cos-inc_100k_muonlr0p0048466298_adam0p0025513005_decay111_trial008/metric.json --no_reload --seed 0 --lowrank_auto_init_rank_start
+
+CUDA_VISIBLE_DEVICES=6 python run_ranksched_optims_optuna_ready.py --config configs/drums.txt --basedir logs/train_103 --expname drums_aux-sign-auto-cos-inc_100k_muonlr0p0045141023_adam0p0008216909_decay457_trial003 --optimizer aux-sign-auto-cos-inc --lrate 0.0008216908785704095 --lrate_decay 457 --muon_lrate 0.004514102265895567 --muon_decay 0.0 --muon_momentum 0.9 --N_iters 100000 --eval_every 10000 --max_eval_views 2 --metric_out logs/train_103/drums/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/drums_aux-sign-auto-cos-inc_100k_muonlr0p0045141023_adam0p0008216909_decay457_trial003/metric.json --no_reload --seed 0 --lowrank_auto_init_rank_start
 """

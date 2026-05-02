@@ -1,0 +1,108 @@
+[I 2026-04-30 04:45:05,723] Using an existing study with name 'mic_aux-sign-auto-cos-inc_stage1only_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only' instead of creating a new one.
+[I 2026-04-30 08:21:49,059] Trial 2 finished with value: 32.00271797180176 and parameters: {'lrate': 0.0010615360772719654, 'lrate_decay': 386, 'muon_lrate': 0.001635335754309247}. Best is trial 2 with value: 32.00271797180176.
+[I 2026-04-30 11:58:46,660] Trial 3 finished with value: 32.11460304260254 and parameters: {'lrate': 0.0010519726230559959, 'lrate_decay': 269, 'muon_lrate': 0.001846316577722323}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-04-30 15:30:02,628] Trial 4 finished with value: 31.860929489135742 and parameters: {'lrate': 0.0008216908785704095, 'lrate_decay': 457, 'muon_lrate': 0.004514102265895567}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-04-30 19:06:15,990] Trial 5 finished with value: 31.821602821350098 and parameters: {'lrate': 0.0007253753172998836, 'lrate_decay': 417, 'muon_lrate': 0.001328467245876384}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-04-30 22:35:57,689] Trial 6 finished with value: 30.479860305786133 and parameters: {'lrate': 0.0011095983846308643, 'lrate_decay': 471, 'muon_lrate': 0.0003663671900803624}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-05-01 02:05:10,822] Trial 7 finished with value: 32.03515625 and parameters: {'lrate': 0.002616937682010607, 'lrate_decay': 159, 'muon_lrate': 0.003623295039993152}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-05-01 05:35:12,984] Trial 8 finished with value: 30.126778602600098 and parameters: {'lrate': 0.00031417172594439365, 'lrate_decay': 227, 'muon_lrate': 0.0003636925892547774}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-05-01 09:11:22,197] Trial 9 finished with value: 31.628740310668945 and parameters: {'lrate': 0.0021399816882859213, 'lrate_decay': 284, 'muon_lrate': 0.0007308359664212255}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-05-01 12:39:55,264] Trial 10 finished with value: 31.998785972595215 and parameters: {'lrate': 0.000453682908579571, 'lrate_decay': 104, 'muon_lrate': 0.0023531859828563972}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-05-01 16:09:41,571] Trial 11 finished with value: 31.617013931274414 and parameters: {'lrate': 0.0014856177368056476, 'lrate_decay': 331, 'muon_lrate': 0.0008144252902731651}. Best is trial 3 with value: 32.11460304260254.
+[I 2026-05-01 19:38:56,485] Trial 12 finished with value: 32.11516571044922 and parameters: {'lrate': 0.0005646537647516755, 'lrate_decay': 238, 'muon_lrate': 0.0024331891771541534}. Best is trial 12 with value: 32.11516571044922.
+[I 2026-05-01 23:08:46,521] Trial 13 finished with value: 32.037601470947266 and parameters: {'lrate': 0.0005607767698867578, 'lrate_decay': 237, 'muon_lrate': 0.002445287720495803}. Best is trial 12 with value: 32.11516571044922.
+[DONE] Summary saved to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/mic/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/mic_aux-sign-auto-cos-inc_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only_summary.json
+Traceback (most recent call last):
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: attempt to write a readonly database
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_rdb/storage.py", line 78, in _create_scoped_session
+    session.commit()
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 4331, in flush
+    self._flush(objects)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 4467, in _flush
+    transaction.rollback(_capture_exception=True)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 4427, in _flush
+    flush_context.execute()
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/persistence.py", line 85, in save_obj
+    _emit_update_statements(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/persistence.py", line 912, in _emit_update_statements
+    c = connection.execute(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) attempt to write a readonly database
+[SQL: UPDATE trials SET state=?, datetime_complete=? WHERE trials.trial_id = ?]
+[parameters: ('FAIL', '2026-05-02 02:38:11.480543', 15)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 213, in _run_trial
+    updated_state, values, warning_message = _tell_with_warning(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_tell.py", line 175, in _tell_with_warning
+    study._storage.set_trial_state_values(frozen_trial._trial_id, state, values)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_cached_storage.py", line 185, in set_trial_state_values
+    return self._backend.set_trial_state_values(trial_id, state=state, values=values)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_rdb/storage.py", line 641, in set_trial_state_values
+    trial.datetime_complete = datetime.now()
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/contextlib.py", line 120, in __exit__
+    next(self.gen)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_rdb/storage.py", line 95, in _create_scoped_session
+    raise optuna.exceptions.StorageInternalError(message) from e
+optuna.exceptions.StorageInternalError: An exception is raised during the commit. This typically happens due to invalid data in the commit, e.g. exceeding max length. 
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "stage1_optims_lr_decay_mlr_search.py", line 354, in <module>
+    main()
+  File "stage1_optims_lr_decay_mlr_search.py", line 343, in main
+    study.optimize(objective, n_trials=remaining, callbacks=[callback])
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/study.py", line 490, in optimize
+    _optimize(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial_id = _run_trial(study, func, catch)
+  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 251, in _run_trial
+    assert False, "Should not reach."
+AssertionError: Should not reach.
