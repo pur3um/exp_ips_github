@@ -1,0 +1,20 @@
+{
+  "scene": "lego",
+  "budget": "100k",
+  "optimizer": "aux-sign-auto-cos-inc",
+  "search_space": "muon_lrate_only",
+  "fixed_muon_decay": 0.0,
+  "fixed_muon_momentum": 0.9,
+  "min_lr": 0.0003,
+  "max_lr": 0.003,
+  "min_decay": 100.0,
+  "max_decay": 500.0,
+  "min_muon_lr": 0.0003,
+  "max_muon_lr": 0.003,
+  "study_name": "lego_aux-sign-auto-cos-inc_stage1only_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only",
+  "best_value": null,
+  "best_params": null,
+  "best_trial_number": null,
+  "n_complete_trials": 0,
+  "top_trials": []
+}

@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 32.93605136871338,
+  "best_iter": 100000,
+  "best_ckpt_path": "/workspace/exp_ips_github/logs/100k_muon_lr/chair/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/chair_aux-sign-auto-cos-inc_100k_muonlr0p000774972_adam0p0016087401_decay201_trial015/best.tar",
+  "lrate": 0.0016087401177137133,
+  "muon_lrate": 0.0007749719562484655,
+  "expname": "chair_aux-sign-auto-cos-inc_100k_muonlr0p000774972_adam0p0016087401_decay201_trial015",
+  "N_iters": 100000,
+  "eval_every": 5000,
+  "max_eval_views": 2,
+  "elapsed_sec": 7617.148609161377,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}

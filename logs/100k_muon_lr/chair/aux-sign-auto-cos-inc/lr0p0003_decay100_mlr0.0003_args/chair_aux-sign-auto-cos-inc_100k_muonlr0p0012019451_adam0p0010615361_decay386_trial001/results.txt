@@ -1,0 +1,42 @@
+====================================================================================================
+run_start_time: 2026-04-30 04:27:15
+script: run_nerf_ranksched.py
+expname: chair_aux-sign-auto-cos-inc_100k_muonlr0p0012019451_adam0p0010615361_decay386_trial001
+dataset_type: blender
+datadir: ./data/nerf_synthetic/chair
+resume_start_step: 0
+optimizer_setup:
+  optimizer_main: Muon
+  muon_lr_init: 0.0012019450985893186
+  muon_weight_decay: 0.0
+  muon_momentum: 0.9
+  optimizer_aux: Adam
+  aux_adam_lr_init: 0.0010615360772719654
+  aux_adam_betas: (0.9, 0.999)
+  lrate_decay_ksteps: 386
+  muon_tensor_count: 48
+  muon_total_params: 1191688
+scheduler_setup:
+  scheduler_name: rank_wsd
+  warmup_steps: 1000
+  min_lr_ratio: 0.1
+  decay_start_step: 80000
+train_psnr_log:
+  lowrank_schedule:
+    rank_start: 150
+    rank_end: 250
+    schedule: cosine_increase_closed_form
+    schedule_steps: 80000
+    oversample: 4
+    subspace_iters: 1
+    ns_steps: 0
+    scale_mode: default
+  lowrank_auto_init_start:
+    enabled: True
+    probe_steps: 8
+    energy_tau: 0.999
+    round_multiple: 8
+iter=2000 global_step=1999 loss=0.0160027556 psnr=21.295834 muon_lr=1.20194510e-03 adam_lr=1.06153608e-03 muon_rank=250 muon_target_rank=250 muon_method=cosine_inc_auto_start
+iter=4000 global_step=3999 loss=0.0047895778 psnr=26.951431 muon_lr=1.20194510e-03 adam_lr=1.06153608e-03 muon_rank=250 muon_target_rank=250 muon_method=cosine_inc_auto_start
+iter=6000 global_step=5999 loss=0.0030202526 psnr=29.864532 muon_lr=1.20194510e-03 adam_lr=1.06153608e-03 muon_rank=250 muon_target_rank=250 muon_method=cosine_inc_auto_start
+iter=8000 global_step=7999 loss=0.0036395830 psnr=28.643826 muon_lr=1.20194510e-03 adam_lr=1.06153608e-03 muon_rank=250 muon_target_rank=250 muon_method=cosine_inc_auto_start

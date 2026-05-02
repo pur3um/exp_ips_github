@@ -1,69 +1,22 @@
-[I 2026-04-29 15:30:14,649] A new study created in RDB with name: chair_aux-sign-auto-cos-inc_stage1only_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only
-[DONE] Summary saved to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/chair/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/chair_aux-sign-auto-cos-inc_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only_summary.json
-Traceback (most recent call last):
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 213, in _run_trial
-    updated_state, values, warning_message = _tell_with_warning(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_tell.py", line 106, in _tell_with_warning
-    frozen_trial = _get_frozen_trial(study, trial)
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_tell.py", line 40, in _get_frozen_trial
-    return study._storage.get_trial(trial_id)
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_cached_storage.py", line 211, in get_trial
-    return self._backend.get_trial(trial_id)
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_rdb/storage.py", line 780, in get_trial
-    frozen_trial = self._build_frozen_trial_from_trial_model(trial_model)
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/storages/_rdb/storage.py", line 893, in _build_frozen_trial_from_trial_model
-    attr.key: json.loads(attr.value_json) for attr in trial.system_attributes
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/attributes.py", line 569, in __get__
-    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/attributes.py", line 1096, in get
-    value = self._fire_loader_callables(state, key, passive)
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/attributes.py", line 1131, in _fire_loader_callables
-    return self.callable_(state, passive)
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/strategies.py", line 978, in _load_for_state
-    return self._emit_lazyload(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/strategies.py", line 1141, in _emit_lazyload
-    result = session.execute(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
-    return self._execute_internal(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/session.py", line 2249, in _execute_internal
-    result: Result[Any] = compile_state_cls.orm_execute_statement(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
-    result = conn.execute(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
-    return meth(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
-    return connection._execute_clauseelement(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
-    ret = self._execute_context(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1821, in _execute_context
-    self._handle_dbapi_exception(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 2366, in _handle_dbapi_exception
-    raise exc_info[1].with_traceback(exc_info[2])
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1815, in _execute_context
-    context = constructor(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/default.py", line 1416, in _init_compiled
-    self.compiled_parameters = [
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/engine/default.py", line 1417, in <listcomp>
-    compiled.construct_params(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/sqlalchemy/sql/compiler.py", line 1884, in construct_params
-    if self.cache_key is None:
-  File "stage1_optims_lr_decay_mlr_search.py", line 61, in signal_handler
-    raise KeyboardInterrupt
-KeyboardInterrupt
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "stage1_optims_lr_decay_mlr_search.py", line 354, in <module>
-    main()
-  File "stage1_optims_lr_decay_mlr_search.py", line 343, in main
-    study.optimize(objective, n_trials=remaining, callbacks=[callback])
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/study.py", line 490, in optimize
-    _optimize(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 63, in _optimize
-    _optimize_sequential(
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
-    frozen_trial_id = _run_trial(study, func, catch)
-  File "/home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/optuna/study/_optimize.py", line 227, in _run_trial
-    if updated_state == TrialState.COMPLETE:
-UnboundLocalError: local variable 'updated_state' referenced before assignment
+[I 2026-04-30 04:43:55,391] Using an existing study with name 'chair_aux-sign-auto-cos-inc_stage1only_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only' instead of creating a new one.
+[I 2026-04-30 06:50:30,005] Trial 2 finished with value: 33.652610778808594 and parameters: {'lrate': 0.0010615360772719654, 'lrate_decay': 386, 'muon_lrate': 0.001635335754309247}. Best is trial 2 with value: 33.652610778808594.
+[I 2026-04-30 08:57:17,894] Trial 3 finished with value: 33.704301834106445 and parameters: {'lrate': 0.0010519726230559959, 'lrate_decay': 269, 'muon_lrate': 0.001846316577722323}. Best is trial 3 with value: 33.704301834106445.
+[I 2026-04-30 11:04:05,031] Trial 4 finished with value: 33.450260162353516 and parameters: {'lrate': 0.0008216908785704095, 'lrate_decay': 457, 'muon_lrate': 0.004514102265895567}. Best is trial 3 with value: 33.704301834106445.
+[I 2026-04-30 13:15:13,307] Trial 5 finished with value: 33.404306411743164 and parameters: {'lrate': 0.0007253753172998836, 'lrate_decay': 417, 'muon_lrate': 0.001328467245876384}. Best is trial 3 with value: 33.704301834106445.
+[I 2026-04-30 15:21:58,418] Trial 6 finished with value: 31.795690536499023 and parameters: {'lrate': 0.0011095983846308643, 'lrate_decay': 471, 'muon_lrate': 0.0003663671900803624}. Best is trial 3 with value: 33.704301834106445.
+[I 2026-04-30 17:33:25,250] Trial 7 finished with value: 33.721195220947266 and parameters: {'lrate': 0.002616937682010605, 'lrate_decay': 159, 'muon_lrate': 0.003623295039993152}. Best is trial 7 with value: 33.721195220947266.
+[I 2026-04-30 19:43:28,465] Trial 8 finished with value: 33.39524841308594 and parameters: {'lrate': 0.0025513004740846646, 'lrate_decay': 111, 'muon_lrate': 0.004846629789555252}. Best is trial 7 with value: 33.721195220947266.
+[I 2026-04-30 21:52:59,988] Trial 9 finished with value: 31.47370719909668 and parameters: {'lrate': 0.0003439496417731218, 'lrate_decay': 138, 'muon_lrate': 0.0003681556505036925}. Best is trial 7 with value: 33.721195220947266.
+[I 2026-05-01 00:00:12,396] Trial 10 finished with value: 33.80361747741699 and parameters: {'lrate': 0.002958288139689019, 'lrate_decay': 230, 'muon_lrate': 0.0026647860197380052}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 02:07:01,448] Trial 11 finished with value: 32.856242179870605 and parameters: {'lrate': 0.001793342400756751, 'lrate_decay': 261, 'muon_lrate': 0.0007306883520538916}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 04:14:03,004] Trial 12 finished with value: 33.73301124572754 and parameters: {'lrate': 0.00036629270902562624, 'lrate_decay': 215, 'muon_lrate': 0.0023376231744957465}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 06:20:47,149] Trial 13 finished with value: 33.73911476135254 and parameters: {'lrate': 0.00034521047545471286, 'lrate_decay': 207, 'muon_lrate': 0.002382051391802877}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 08:27:30,827] Trial 14 finished with value: 33.66513633728027 and parameters: {'lrate': 0.0005486193148614769, 'lrate_decay': 344, 'muon_lrate': 0.0027620995844255215}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 10:34:34,566] Trial 15 finished with value: 32.93605136871338 and parameters: {'lrate': 0.0016087401177137133, 'lrate_decay': 201, 'muon_lrate': 0.0007749719562484655}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 12:41:50,550] Trial 16 finished with value: 33.7674674987793 and parameters: {'lrate': 0.0005277844900146941, 'lrate_decay': 315, 'muon_lrate': 0.0027751886226705332}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 14:48:43,321] Trial 17 finished with value: 33.763145446777344 and parameters: {'lrate': 0.0005561916500107951, 'lrate_decay': 327, 'muon_lrate': 0.003182546379866163}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 16:55:44,989] Trial 18 finished with value: 33.066083908081055 and parameters: {'lrate': 0.00047109722161735773, 'lrate_decay': 289, 'muon_lrate': 0.000975818809731254}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 19:02:30,026] Trial 19 finished with value: 33.76314163208008 and parameters: {'lrate': 0.0015111580624799824, 'lrate_decay': 364, 'muon_lrate': 0.0018482376028003784}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 21:09:38,083] Trial 20 finished with value: 33.67115592956543 and parameters: {'lrate': 0.0006892702226995792, 'lrate_decay': 312, 'muon_lrate': 0.0035379679980789345}. Best is trial 10 with value: 33.80361747741699.
+[I 2026-05-01 23:16:43,778] Trial 21 finished with value: 33.46543502807617 and parameters: {'lrate': 0.0021137045139821564, 'lrate_decay': 243, 'muon_lrate': 0.0012411817260249047}. Best is trial 10 with value: 33.80361747741699.
+[DONE] Summary saved to /workspace/exp_ips_github/logs/100k_muon_lr/chair/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/chair_aux-sign-auto-cos-inc_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only_summary.json

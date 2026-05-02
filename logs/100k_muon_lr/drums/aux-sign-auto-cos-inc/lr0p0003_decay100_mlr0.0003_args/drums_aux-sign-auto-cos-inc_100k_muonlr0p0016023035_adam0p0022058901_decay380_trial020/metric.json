@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 27.979805946350098,
+  "best_iter": 100000,
+  "best_ckpt_path": "/workspace/exp_ips_github/logs/100k_muon_lr/drums/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/drums_aux-sign-auto-cos-inc_100k_muonlr0p0016023035_adam0p0022058901_decay380_trial020/best.tar",
+  "lrate": 0.0022058900778865256,
+  "muon_lrate": 0.0016023035454197114,
+  "expname": "drums_aux-sign-auto-cos-inc_100k_muonlr0p0016023035_adam0p0022058901_decay380_trial020",
+  "N_iters": 100000,
+  "eval_every": 5000,
+  "max_eval_views": 2,
+  "elapsed_sec": 7608.754803657532,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}
