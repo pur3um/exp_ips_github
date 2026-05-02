@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 31.251943588256836,
+  "best_iter": 100000,
+  "best_ckpt_path": "/workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0012244092_adam0p0019994747_decay295_trial021/best.tar",
+  "lrate": 0.0019994747384599484,
+  "muon_lrate": 0.0012244091545440025,
+  "expname": "lego_aux-sign-auto-cos-inc_100k_muonlr0p0012244092_adam0p0019994747_decay295_trial021",
+  "N_iters": 100000,
+  "eval_every": 5000,
+  "max_eval_views": 2,
+  "elapsed_sec": 7702.327686786652,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}

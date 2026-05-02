@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 30.471147537231445,
+  "best_iter": 100000,
+  "best_ckpt_path": "/workspace/exp_ips_github/logs/100k_muon_lr/materials/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/materials_aux-sign-auto-cos-inc_100k_muonlr0p003166235_adam0p0017147523_decay153_trial015/best.tar",
+  "lrate": 0.0017147523096517699,
+  "muon_lrate": 0.003166234955903426,
+  "expname": "materials_aux-sign-auto-cos-inc_100k_muonlr0p003166235_adam0p0017147523_decay153_trial015",
+  "N_iters": 100000,
+  "eval_every": 5000,
+  "max_eval_views": 2,
+  "elapsed_sec": 7687.880632400513,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}

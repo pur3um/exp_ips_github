@@ -17,7 +17,11 @@
   "min_decay": 100,
   "max_decay": 500,
   "min_muon_lr": 0.0003,
+<<<<<<< HEAD
   "max_muon_lr": 0.003,
+=======
+  "max_muon_lr": 0.005,
+>>>>>>> 2ecda40edc6e4c6d95076ab335fb72ecb1d09ab0
   "fixed_muon_decay": 0.0,
   "fixed_muon_momentum": 0.9,
   "n_iters": 100000,

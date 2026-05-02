@@ -18,6 +18,7 @@ VAL views are [100 101 102 103 104 105 106 107 108 109 110 111 112]
 [VAL]   Iter: 2000 PSNR: 20.741561889648438
 [TRAIN] Iter: 4000 Loss: 0.016932640224695206  PSNR: 21.195728302001953  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.202e-03 lr_adam=1.062e-03
 [VAL]   Iter: 4000 PSNR: 22.670286178588867
+<<<<<<< HEAD
 [TRAIN] Iter: 6000 Loss: 0.0031534875743091106  PSNR: 29.361780166625977  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.202e-03 lr_adam=1.062e-03
 [VAL]   Iter: 6000 PSNR: 22.139312744140625
 [TRAIN] Iter: 8000 Loss: 0.005921631585806608  PSNR: 26.82613182067871  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.202e-03 lr_adam=1.062e-03
@@ -187,3 +188,7 @@ Loading model from: /venv/nerf/lib/python3.8/site-packages/lpips/weights/v0.1/al
 Saved test set
 [TRAIN] Iter: 100000 Loss: 0.00328390346840024  PSNR: 29.67404556274414  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.1000 lr_muon=1.202e-04 lr_adam=1.062e-04
 [VAL]   Iter: 100000 PSNR: 26.96381378173828
+=======
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/materials/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/materials_aux-sign-auto-cos-inc_100k_muonlr0p0012019451_adam0p0010615361_decay386_trial000/best.tar (PSNR=23.8578, iter=5000)
+[VAL] Iter: 5000 mean PSNR: 23.8578 | best: 23.8578 @ 5000
+>>>>>>> 2ecda40edc6e4c6d95076ab335fb72ecb1d09ab0

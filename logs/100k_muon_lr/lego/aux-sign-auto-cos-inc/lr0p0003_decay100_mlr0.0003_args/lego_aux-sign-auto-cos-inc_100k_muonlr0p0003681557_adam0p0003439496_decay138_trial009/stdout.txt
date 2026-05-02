@@ -1,0 +1,229 @@
+Loaded blender (138, 400, 400, 4) torch.Size([40, 4, 4]) [400, 400, 555.5555155968841] ./data/nerf_synthetic/lego
+Param split: Muon=20 tensors, Adam=28 tensors
+INFO: Sign Auto Cos increase optimizer configured. Hidden params: 20, Aux params: 28.
+Found ckpts []
+Not ndc!
+[RankWSD] total_iters=100000 warmup_steps=1000 decay_start_step=80000 min_lr_ratio=0.1 base_N_rand=1024
+Begin
+TRAIN views are [ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+ 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+ 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71
+ 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
+ 96 97 98 99]
+TEST views are [113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130
+ 131 132 133 134 135 136 137]
+VAL views are [100 101 102 103 104 105 106 107 108 109 110 111 112]
+[Config] Center cropping of size 200 x 200 is enabled until iter 500
+[TRAIN] Iter: 2000 Loss: 0.1235077828168869  PSNR: 12.097114562988281  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 2000 PSNR: 11.79662799835205
+[TRAIN] Iter: 4000 Loss: 0.03341894596815109  PSNR: 17.906707763671875  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 4000 PSNR: 18.715503692626953
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=19.5293, iter=5000)
+[VAL] Iter: 5000 mean PSNR: 19.5293 | best: 19.5293 @ 5000
+[TRAIN] Iter: 6000 Loss: 0.015137456357479095  PSNR: 21.571887969970703  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 6000 PSNR: 21.252151489257812
+[TRAIN] Iter: 8000 Loss: 0.015289606526494026  PSNR: 21.734100341796875  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 8000 PSNR: 21.56560707092285
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=23.4667, iter=10000)
+[VAL] Iter: 10000 mean PSNR: 23.4667 | best: 23.4667 @ 10000
+[TRAIN] Iter: 10000 Loss: 0.01382711436599493  PSNR: 22.48218536376953  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 10000 PSNR: 23.216522216796875
+[TRAIN] Iter: 12000 Loss: 0.008660427294671535  PSNR: 24.034006118774414  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 12000 PSNR: 25.430065155029297
+[TRAIN] Iter: 14000 Loss: 0.010511508211493492  PSNR: 23.950550079345703  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 14000 PSNR: 24.661426544189453
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=24.9175, iter=15000)
+[VAL] Iter: 15000 mean PSNR: 24.9175 | best: 24.9175 @ 15000
+[TRAIN] Iter: 16000 Loss: 0.007900428026914597  PSNR: 25.483821868896484  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 16000 PSNR: 24.474794387817383
+[TRAIN] Iter: 18000 Loss: 0.011114809662103653  PSNR: 23.06788444519043  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 18000 PSNR: 25.16667366027832
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=25.5697, iter=20000)
+[VAL] Iter: 20000 mean PSNR: 25.5697 | best: 25.5697 @ 20000
+[TRAIN] Iter: 20000 Loss: 0.007250236347317696  PSNR: 26.09278106689453  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 20000 PSNR: 24.992218017578125
+[TRAIN] Iter: 22000 Loss: 0.005151703022420406  PSNR: 26.874881744384766  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 22000 PSNR: 27.38410758972168
+[TRAIN] Iter: 24000 Loss: 0.005932504311203957  PSNR: 26.26253318786621  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 24000 PSNR: 25.851661682128906
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=26.0183, iter=25000)
+[VAL] Iter: 25000 mean PSNR: 26.0183 | best: 26.0183 @ 25000
+[TRAIN] Iter: 26000 Loss: 0.004317568615078926  PSNR: 28.281768798828125  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 26000 PSNR: 27.10172462463379
+[TRAIN] Iter: 28000 Loss: 0.005238131154328585  PSNR: 29.300596237182617  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 28000 PSNR: 27.4063663482666
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=26.3937, iter=30000)
+[VAL] Iter: 30000 mean PSNR: 26.3937 | best: 26.3937 @ 30000
+[TRAIN] Iter: 30000 Loss: 0.008233295753598213  PSNR: 25.448196411132812  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 30000 PSNR: 28.194713592529297
+[TRAIN] Iter: 32000 Loss: 0.005221799481660128  PSNR: 27.23314094543457  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 32000 PSNR: 26.73109245300293
+[TRAIN] Iter: 34000 Loss: 0.0047140829265117645  PSNR: 28.06999969482422  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 34000 PSNR: 26.222793579101562
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=26.6465, iter=35000)
+[VAL] Iter: 35000 mean PSNR: 26.6465 | best: 26.6465 @ 35000
+[TRAIN] Iter: 36000 Loss: 0.009367307648062706  PSNR: 24.965364456176758  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 36000 PSNR: 27.055408477783203
+[TRAIN] Iter: 38000 Loss: 0.004370668902993202  PSNR: 28.590137481689453  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 38000 PSNR: 27.19753074645996
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=26.9862, iter=40000)
+[VAL] Iter: 40000 mean PSNR: 26.9862 | best: 26.9862 @ 40000
+[TRAIN] Iter: 40000 Loss: 0.0036542071029543877  PSNR: 28.421066284179688  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 40000 PSNR: 28.273096084594727
+[TRAIN] Iter: 42000 Loss: 0.005284317769110203  PSNR: 27.733793258666992  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 42000 PSNR: 28.400157928466797
+[TRAIN] Iter: 44000 Loss: 0.004829423502087593  PSNR: 28.07436180114746  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 44000 PSNR: 27.11200714111328
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=27.0838, iter=45000)
+[VAL] Iter: 45000 mean PSNR: 27.0838 | best: 27.0838 @ 45000
+[TRAIN] Iter: 46000 Loss: 0.006346569396555424  PSNR: 27.20874786376953  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 46000 PSNR: 27.373451232910156
+[TRAIN] Iter: 48000 Loss: 0.009432679042220116  PSNR: 24.471698760986328  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 48000 PSNR: 27.02401351928711
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=27.4786, iter=50000)
+[VAL] Iter: 50000 mean PSNR: 27.4786 | best: 27.4786 @ 50000
+[TRAIN] Iter: 50000 Loss: 0.008925387635827065  PSNR: 25.82272720336914  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 50000 PSNR: 29.036983489990234
+[TRAIN] Iter: 52000 Loss: 0.004686280153691769  PSNR: 29.088733673095703  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 52000 PSNR: 27.97467803955078
+[TRAIN] Iter: 54000 Loss: 0.004422427155077457  PSNR: 29.09986114501953  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 54000 PSNR: 27.088417053222656
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=27.6516, iter=55000)
+[VAL] Iter: 55000 mean PSNR: 27.6516 | best: 27.6516 @ 55000
+[TRAIN] Iter: 56000 Loss: 0.0038103233091533184  PSNR: 29.680744171142578  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 56000 PSNR: 27.045928955078125
+[TRAIN] Iter: 58000 Loss: 0.0046008275821805  PSNR: 27.991506576538086  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 58000 PSNR: 27.622177124023438
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=27.9834, iter=60000)
+[VAL] Iter: 60000 mean PSNR: 27.9834 | best: 27.9834 @ 60000
+[TRAIN] Iter: 60000 Loss: 0.004785751923918724  PSNR: 28.55006217956543  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 60000 PSNR: 29.830944061279297
+[TRAIN] Iter: 62000 Loss: 0.004527254495769739  PSNR: 29.327301025390625  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 62000 PSNR: 28.68408203125
+[TRAIN] Iter: 64000 Loss: 0.007198127917945385  PSNR: 25.730480194091797  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 64000 PSNR: 27.76315689086914
+[VAL] Iter: 65000 mean PSNR: 27.7237 | best: 27.9834 @ 60000
+[TRAIN] Iter: 66000 Loss: 0.005328023806214333  PSNR: 27.762088775634766  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 66000 PSNR: 28.84850311279297
+[TRAIN] Iter: 68000 Loss: 0.0037492027040570974  PSNR: 29.399944305419922  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 68000 PSNR: 28.142919540405273
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=28.1020, iter=70000)
+[VAL] Iter: 70000 mean PSNR: 28.1020 | best: 28.1020 @ 70000
+[TRAIN] Iter: 70000 Loss: 0.0061989836394786835  PSNR: 27.442428588867188  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 70000 PSNR: 28.051631927490234
+[TRAIN] Iter: 72000 Loss: 0.005061008036136627  PSNR: 27.292522430419922  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 72000 PSNR: 29.628751754760742
+[TRAIN] Iter: 74000 Loss: 0.003597575705498457  PSNR: 29.65337562561035  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 74000 PSNR: 29.68276596069336
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=28.3597, iter=75000)
+[VAL] Iter: 75000 mean PSNR: 28.3597 | best: 28.3597 @ 75000
+[TRAIN] Iter: 76000 Loss: 0.003862708806991577  PSNR: 30.755332946777344  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 76000 PSNR: 29.73240089416504
+[TRAIN] Iter: 78000 Loss: 0.0031629372388124466  PSNR: 29.504322052001953  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 78000 PSNR: 28.60673713684082
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=28.4907, iter=80000)
+[VAL] Iter: 80000 mean PSNR: 28.4907 | best: 28.4907 @ 80000
+[TRAIN] Iter: 80000 Loss: 0.003491494571790099  PSNR: 29.440345764160156  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=3.682e-04 lr_adam=3.439e-04
+[VAL]   Iter: 80000 PSNR: 28.696868896484375
+[TRAIN] Iter: 82000 Loss: 0.005557335447520018  PSNR: 27.60559844970703  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.9100 lr_muon=3.350e-04 lr_adam=3.130e-04
+[VAL]   Iter: 82000 PSNR: 29.622333526611328
+[TRAIN] Iter: 84000 Loss: 0.00276762037537992  PSNR: 31.751617431640625  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.8200 lr_muon=3.019e-04 lr_adam=2.821e-04
+[VAL]   Iter: 84000 PSNR: 28.92608642578125
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=28.7262, iter=85000)
+[VAL] Iter: 85000 mean PSNR: 28.7262 | best: 28.7262 @ 85000
+[TRAIN] Iter: 86000 Loss: 0.002718970412388444  PSNR: 32.077110290527344  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.7300 lr_muon=2.688e-04 lr_adam=2.511e-04
+[VAL]   Iter: 86000 PSNR: 30.32275390625
+[TRAIN] Iter: 88000 Loss: 0.0037689730525016785  PSNR: 28.925750732421875  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.6400 lr_muon=2.356e-04 lr_adam=2.201e-04
+[VAL]   Iter: 88000 PSNR: 30.309444427490234
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=28.9623, iter=90000)
+[VAL] Iter: 90000 mean PSNR: 28.9623 | best: 28.9623 @ 90000
+[TRAIN] Iter: 90000 Loss: 0.00474209152162075  PSNR: 28.171833038330078  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.5500 lr_muon=2.025e-04 lr_adam=1.892e-04
+[VAL]   Iter: 90000 PSNR: 29.327919006347656
+[TRAIN] Iter: 92000 Loss: 0.004566941410303116  PSNR: 28.963109970092773  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.4600 lr_muon=1.694e-04 lr_adam=1.582e-04
+[VAL]   Iter: 92000 PSNR: 30.857269287109375
+[TRAIN] Iter: 94000 Loss: 0.0057596927508711815  PSNR: 28.885011672973633  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.3700 lr_muon=1.362e-04 lr_adam=1.273e-04
+[VAL]   Iter: 94000 PSNR: 29.056222915649414
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=28.9888, iter=95000)
+[VAL] Iter: 95000 mean PSNR: 28.9888 | best: 28.9888 @ 95000
+[TRAIN] Iter: 96000 Loss: 0.0024949805811047554  PSNR: 31.311744689941406  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.2800 lr_muon=1.031e-04 lr_adam=9.631e-05
+[VAL]   Iter: 96000 PSNR: 28.635072708129883
+[TRAIN] Iter: 98000 Loss: 0.005472373683005571  PSNR: 27.71906089782715  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.1900 lr_muon=6.995e-05 lr_adam=6.535e-05
+[VAL]   Iter: 98000 PSNR: 30.151126861572266
+Saved checkpoints at /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/100000.tar
+[BEST] Saved best checkpoint to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/best.tar (PSNR=29.1868, iter=100000)
+[VAL] Iter: 100000 mean PSNR: 29.1868 | best: 29.1868 @ 100000
+0 0.0003705024719238281
+torch.Size([400, 400, 3]) torch.Size([400, 400])
+1 3.5253922939300537
+2 3.5256755352020264
+3 3.5250701904296875
+4 3.525017499923706
+5 3.5247297286987305
+6 3.5246171951293945
+7 3.5248210430145264
+8 3.5240893363952637
+9 3.5243489742279053
+10 3.52411150932312
+11 3.5243449211120605
+12 3.539199113845825
+13 3.6047964096069336
+14 3.6217472553253174
+15 3.6219897270202637
+16 3.6335129737854004
+17 3.6264359951019287
+18 3.6208553314208984
+19 3.623323440551758
+20 3.624457359313965
+21 3.6086504459381104
+22 3.6138782501220703
+23 3.6162607669830322
+24 3.61957049369812
+25 3.6221776008605957
+26 3.617504358291626
+27 3.6081457138061523
+28 3.6231565475463867
+29 3.611797332763672
+30 3.6194310188293457
+31 3.618694543838501
+32 3.6205906867980957
+33 3.6111881732940674
+34 3.6104745864868164
+35 3.6201393604278564
+36 3.6161208152770996
+37 3.614335775375366
+38 3.6210744380950928
+39 3.6060922145843506
+Done, saving (40, 400, 400, 3) (40, 400, 400)
+test poses shape torch.Size([25, 4, 4])
+0 0.0005624294281005859
+torch.Size([400, 400, 3]) torch.Size([400, 400])
+1 3.5571417808532715
+2 3.5445492267608643
+3 3.5792527198791504
+4 3.6085989475250244
+5 3.6257708072662354
+6 3.6311728954315186
+7 3.61177396774292
+8 3.624285936355591
+9 3.6278111934661865
+10 3.6294033527374268
+11 3.6236517429351807
+12 3.6227915287017822
+13 3.6363985538482666
+14 3.6193127632141113
+15 3.6303646564483643
+16 3.6306090354919434
+17 3.6368048191070557
+18 3.6604790687561035
+19 3.622335195541382
+20 3.6268444061279297
+21 3.649153232574463
+22 3.625603437423706
+23 3.6271584033966064
+24 3.630732297897339
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /venv/nerf/lib/python3.8/site-packages/lpips/weights/v0.1/alex.pth
+Saved test set
+[TRAIN] Iter: 100000 Loss: 0.003766510169953108  PSNR: 30.171855926513672  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.1000 lr_muon=3.682e-05 lr_adam=3.439e-05
+[VAL]   Iter: 100000 PSNR: 28.967144012451172
+Saved metric json to /workspace/exp_ips_github/logs/100k_muon_lr/lego/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/lego_aux-sign-auto-cos-inc_100k_muonlr0p0003681557_adam0p0003439496_decay138_trial009/metric.json
