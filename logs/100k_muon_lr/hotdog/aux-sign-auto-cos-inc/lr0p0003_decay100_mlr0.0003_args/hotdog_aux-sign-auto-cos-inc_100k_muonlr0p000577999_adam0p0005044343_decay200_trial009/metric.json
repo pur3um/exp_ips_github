@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 37.47061729431152,
+  "best_iter": 100000,
+  "best_ckpt_path": "/home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p000577999_adam0p0005044343_decay200_trial009/best.tar",
+  "lrate": 0.0005044342937808256,
+  "muon_lrate": 0.0005779990416750779,
+  "expname": "hotdog_aux-sign-auto-cos-inc_100k_muonlr0p000577999_adam0p0005044343_decay200_trial009",
+  "N_iters": 100000,
+  "eval_every": 5000,
+  "max_eval_views": 2,
+  "elapsed_sec": 12576.560827493668,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}
