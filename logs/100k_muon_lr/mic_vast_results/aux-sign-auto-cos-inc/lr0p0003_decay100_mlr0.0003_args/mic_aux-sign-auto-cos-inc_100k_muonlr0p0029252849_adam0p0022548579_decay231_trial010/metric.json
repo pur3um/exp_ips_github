@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 32.145158767700195,
+  "best_iter": 100000,
+  "best_ckpt_path": "/workspace/exp_ips_github/logs/100k_muon_lr/mic/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/mic_aux-sign-auto-cos-inc_100k_muonlr0p0029252849_adam0p0022548579_decay231_trial010/best.tar",
+  "lrate": 0.002254857890518844,
+  "muon_lrate": 0.002925284917666987,
+  "expname": "mic_aux-sign-auto-cos-inc_100k_muonlr0p0029252849_adam0p0022548579_decay231_trial010",
+  "N_iters": 100000,
+  "eval_every": 5000,
+  "max_eval_views": 2,
+  "elapsed_sec": 8013.769633054733,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}

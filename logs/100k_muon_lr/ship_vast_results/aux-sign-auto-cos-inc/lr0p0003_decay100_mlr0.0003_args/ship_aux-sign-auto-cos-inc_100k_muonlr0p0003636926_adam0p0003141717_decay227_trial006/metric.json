@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 29.09911060333252,
+  "best_iter": 100000,
+  "best_ckpt_path": "/workspace/exp_ips_github/logs/100k_muon_lr/ship/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/ship_aux-sign-auto-cos-inc_100k_muonlr0p0003636926_adam0p0003141717_decay227_trial006/best.tar",
+  "lrate": 0.0003141717259443931,
+  "muon_lrate": 0.0003636925892547774,
+  "expname": "ship_aux-sign-auto-cos-inc_100k_muonlr0p0003636926_adam0p0003141717_decay227_trial006",
+  "N_iters": 100000,
+  "eval_every": 5000,
+  "max_eval_views": 2,
+  "elapsed_sec": 8094.685826778412,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}
