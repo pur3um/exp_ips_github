@@ -1,7 +1,22 @@
-usage: stage1_optims_lr_decay_mlr_search.py [-h] --root ROOT [--run_file RUN_FILE] --config CONFIG [--n_trials N_TRIALS] [--n_iters N_ITERS]
-                                            [--eval_every EVAL_EVERY] [--max_eval_views MAX_EVAL_VIEWS] [--gpu GPU] [--min_lr MIN_LR] [--max_lr MAX_LR]
-                                            [--min_decay MIN_DECAY] [--max_decay MAX_DECAY] [--min_muon_lr MIN_MUON_LR] [--max_muon_lr MAX_MUON_LR]
-                                            [--muon_decay MUON_DECAY] [--muon_momentum MUON_MOMENTUM] [--optimizer OPTIMIZER] [--seed SEED]
-                                            [--n_startup_trials N_STARTUP_TRIALS] [--n_ei_candidates N_EI_CANDIDATES] [--deterministic]
-                                            [--lowrank_auto_init_rank_start]
-stage1_optims_lr_decay_mlr_search.py: error: unrecognized arguments: --expname second_try
+[I 2026-05-02 15:38:15,430] A new study created in RDB with name: drums_aux-sign-auto-cos-inc_stage1only_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only
+[I 2026-05-02 17:48:18,361] Trial 0 finished with value: 27.79473876953125 and parameters: {'lrate': 0.0010615360772719654, 'lrate_decay': 386, 'muon_lrate': 0.0012019450985893186}. Best is trial 0 with value: 27.79473876953125.
+[I 2026-05-02 19:58:38,022] Trial 1 finished with value: 27.851158142089844 and parameters: {'lrate': 0.0010519726230559959, 'lrate_decay': 269, 'muon_lrate': 0.0013274414292574908}. Best is trial 1 with value: 27.851158142089844.
+[I 2026-05-02 22:08:46,706] Trial 2 finished with value: 27.91986656188965 and parameters: {'lrate': 0.0008216908785704095, 'lrate_decay': 457, 'muon_lrate': 0.0027592052977704327}. Best is trial 2 with value: 27.91986656188965.
+[I 2026-05-03 00:19:28,325] Trial 3 finished with value: 27.600669860839844 and parameters: {'lrate': 0.0007253753172998836, 'lrate_decay': 417, 'muon_lrate': 0.0010139491476424019}. Best is trial 2 with value: 27.91986656188965.
+[I 2026-05-03 02:29:36,961] Trial 4 finished with value: 26.532498359680176 and parameters: {'lrate': 0.0011095983846308643, 'lrate_decay': 471, 'muon_lrate': 0.00035331112522565144}. Best is trial 2 with value: 27.91986656188965.
+[I 2026-05-03 04:40:41,546] Trial 5 finished with value: 27.80306625366211 and parameters: {'lrate': 0.00031438059122156694, 'lrate_decay': 155, 'muon_lrate': 0.002690912124985378}. Best is trial 2 with value: 27.91986656188965.
+[I 2026-05-03 06:54:12,485] Trial 6 finished with value: 27.82590961456299 and parameters: {'lrate': 0.0025513004740846646, 'lrate_decay': 307, 'muon_lrate': 0.002926010906487721}. Best is trial 2 with value: 27.91986656188965.
+[I 2026-05-03 09:08:19,330] Trial 7 finished with value: 26.381942749023438 and parameters: {'lrate': 0.0004900524124859565, 'lrate_decay': 489, 'muon_lrate': 0.00035472207152279894}. Best is trial 2 with value: 27.91986656188965.
+[I 2026-05-03 11:21:32,979] Trial 8 finished with value: 27.96424674987793 and parameters: {'lrate': 0.0021742159536866593, 'lrate_decay': 121, 'muon_lrate': 0.00176715285719548}. Best is trial 8 with value: 27.96424674987793.
+[I 2026-05-03 13:34:29,727] Trial 9 finished with value: 27.429683685302734 and parameters: {'lrate': 0.0029945813579718306, 'lrate_decay': 113, 'muon_lrate': 0.0006160330959166842}. Best is trial 8 with value: 27.96424674987793.
+[I 2026-05-03 15:48:27,294] Trial 10 finished with value: 27.994325637817383 and parameters: {'lrate': 0.0015552069456077104, 'lrate_decay': 203, 'muon_lrate': 0.0016101959218125913}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-03 18:02:15,531] Trial 11 finished with value: 27.990696907043457 and parameters: {'lrate': 0.0017548572377658303, 'lrate_decay': 199, 'muon_lrate': 0.001635199446373098}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-03 20:15:44,780] Trial 12 finished with value: 27.905085563659668 and parameters: {'lrate': 0.0015944805974740246, 'lrate_decay': 200, 'muon_lrate': 0.0017377609738177513}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-03 22:29:24,729] Trial 13 finished with value: 27.324993133544922 and parameters: {'lrate': 0.001662052070515544, 'lrate_decay': 225, 'muon_lrate': 0.0006523039702489399}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-04 00:43:11,585] Trial 14 finished with value: 27.930079460144043 and parameters: {'lrate': 0.0015288107660314468, 'lrate_decay': 315, 'muon_lrate': 0.0018529625116746901}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-04 02:57:21,561] Trial 15 finished with value: 27.33734130859375 and parameters: {'lrate': 0.0018674468257162972, 'lrate_decay': 199, 'muon_lrate': 0.0006653257145082276}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-04 05:11:25,947] Trial 16 finished with value: 27.950749397277832 and parameters: {'lrate': 0.0013258257875009593, 'lrate_decay': 248, 'muon_lrate': 0.002161055020092052}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-04 07:25:02,094] Trial 17 finished with value: 27.9689884185791 and parameters: {'lrate': 0.002065208206300762, 'lrate_decay': 163, 'muon_lrate': 0.0013743422940680234}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-04 09:38:41,051] Trial 18 finished with value: 27.47248649597168 and parameters: {'lrate': 0.0006404983857171204, 'lrate_decay': 365, 'muon_lrate': 0.000899836160616584}. Best is trial 10 with value: 27.994325637817383.
+[I 2026-05-04 11:52:18,518] Trial 19 finished with value: 27.60716152191162 and parameters: {'lrate': 0.0013195397324116162, 'lrate_decay': 165, 'muon_lrate': 0.0009430526757093006}. Best is trial 10 with value: 27.994325637817383.
+[DONE] Summary saved to /workspace/exp_ips_github/logs/100k_muon_lr/drums/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/drums_aux-sign-auto-cos-inc_100k_lr0p0003_decay100_mlr0.0003_args_muon_lr_only_summary.json
