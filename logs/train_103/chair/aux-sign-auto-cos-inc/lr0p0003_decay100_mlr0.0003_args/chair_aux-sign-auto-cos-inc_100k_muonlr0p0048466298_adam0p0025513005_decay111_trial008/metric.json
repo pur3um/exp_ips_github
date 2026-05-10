@@ -1,0 +1,14 @@
+{
+  "best_val_psnr": 33.33862495422363,
+  "best_iter": 100000,
+  "best_ckpt_path": "logs/train_103/chair_autowsd_100k_muonlr0p0048466298_adam0p0025513005_decay111_trial008/best.tar",
+  "lrate": 0.0025513004740846646,
+  "muon_lrate": 0.004846629789555252,
+  "expname": "chair_autowsd_100k_muonlr0p0048466298_adam0p0025513005_decay111_trial008",
+  "N_iters": 100000,
+  "eval_every": 10000,
+  "max_eval_views": 2,
+  "elapsed_sec": 12292.508817195892,
+  "optimizer": "aux-sign-auto-cos-inc",
+  "seed": 0
+}

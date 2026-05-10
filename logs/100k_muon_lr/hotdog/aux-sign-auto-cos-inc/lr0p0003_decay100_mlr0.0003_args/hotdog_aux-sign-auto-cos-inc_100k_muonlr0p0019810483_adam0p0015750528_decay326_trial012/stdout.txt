@@ -1,0 +1,225 @@
+Loaded blender (138, 400, 400, 4) torch.Size([40, 4, 4]) [400, 400, 555.5555155968841] ./data/nerf_synthetic/hotdog
+Param split: Muon=20 tensors, Adam=28 tensors
+INFO: Sign Auto Cos increase optimizer configured. Hidden params: 20, Aux params: 28.
+Found ckpts []
+Not ndc!
+[RankWSD] total_iters=100000 warmup_steps=1000 decay_start_step=80000 min_lr_ratio=0.1 base_N_rand=1024
+Begin
+TRAIN views are [ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+ 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+ 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71
+ 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
+ 96 97 98 99]
+TEST views are [113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130
+ 131 132 133 134 135 136 137]
+VAL views are [100 101 102 103 104 105 106 107 108 109 110 111 112]
+[Config] Center cropping of size 200 x 200 is enabled until iter 500
+[TRAIN] Iter: 2000 Loss: 0.004959071055054665  PSNR: 26.89288330078125  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 2000 PSNR: 25.726001739501953
+[TRAIN] Iter: 4000 Loss: 0.0023896582424640656  PSNR: 30.461395263671875  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 4000 PSNR: 27.870197296142578
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=31.2326, iter=5000)
+[VAL] Iter: 5000 mean PSNR: 31.2326 | best: 31.2326 @ 5000
+[TRAIN] Iter: 6000 Loss: 0.0031810207292437553  PSNR: 29.466188430786133  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 6000 PSNR: 28.48212242126465
+[TRAIN] Iter: 8000 Loss: 0.0017419185023754835  PSNR: 32.76295471191406  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 8000 PSNR: 32.4351806640625
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=32.3125, iter=10000)
+[VAL] Iter: 10000 mean PSNR: 32.3125 | best: 32.3125 @ 10000
+[TRAIN] Iter: 10000 Loss: 0.0020335495937615633  PSNR: 30.157211303710938  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 10000 PSNR: 32.172569274902344
+[TRAIN] Iter: 12000 Loss: 0.0017116910312324762  PSNR: 31.67137908935547  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 12000 PSNR: 31.996957778930664
+[TRAIN] Iter: 14000 Loss: 0.0011103410506621003  PSNR: 34.829986572265625  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 14000 PSNR: 32.4677734375
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=34.0682, iter=15000)
+[VAL] Iter: 15000 mean PSNR: 34.0682 | best: 34.0682 @ 15000
+[TRAIN] Iter: 16000 Loss: 0.001878633163869381  PSNR: 31.872777938842773  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 16000 PSNR: 34.6177978515625
+[TRAIN] Iter: 18000 Loss: 0.0012554104905575514  PSNR: 34.75170135498047  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 18000 PSNR: 31.787080764770508
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=34.7904, iter=20000)
+[VAL] Iter: 20000 mean PSNR: 34.7904 | best: 34.7904 @ 20000
+[TRAIN] Iter: 20000 Loss: 0.0010851486586034298  PSNR: 35.051795959472656  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 20000 PSNR: 34.12969970703125
+[TRAIN] Iter: 22000 Loss: 0.0013707688776776195  PSNR: 33.45107650756836  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 22000 PSNR: 33.75470733642578
+[TRAIN] Iter: 24000 Loss: 0.0013692097272723913  PSNR: 33.122535705566406  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 24000 PSNR: 34.425350189208984
+[VAL] Iter: 25000 mean PSNR: 34.4053 | best: 34.7904 @ 20000
+[TRAIN] Iter: 26000 Loss: 0.0011078991228714585  PSNR: 35.3166618347168  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 26000 PSNR: 29.440824508666992
+[TRAIN] Iter: 28000 Loss: 0.0014032479375600815  PSNR: 34.15141677856445  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 28000 PSNR: 34.22685241699219
+[VAL] Iter: 30000 mean PSNR: 34.6386 | best: 34.7904 @ 20000
+[TRAIN] Iter: 30000 Loss: 0.0009751865873113275  PSNR: 35.74325942993164  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 30000 PSNR: 34.41345977783203
+[TRAIN] Iter: 32000 Loss: 0.0011286381632089615  PSNR: 34.20474624633789  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 32000 PSNR: 34.78655242919922
+[TRAIN] Iter: 34000 Loss: 0.0007568403379991651  PSNR: 36.20191192626953  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 34000 PSNR: 34.16114044189453
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=35.7183, iter=35000)
+[VAL] Iter: 35000 mean PSNR: 35.7183 | best: 35.7183 @ 35000
+[TRAIN] Iter: 36000 Loss: 0.0018292791210114956  PSNR: 32.829307556152344  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 36000 PSNR: 33.62512969970703
+[TRAIN] Iter: 38000 Loss: 0.0012126303045079112  PSNR: 33.98981475830078  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 38000 PSNR: 34.987770080566406
+[VAL] Iter: 40000 mean PSNR: 35.6607 | best: 35.7183 @ 35000
+[TRAIN] Iter: 40000 Loss: 0.0013385205529630184  PSNR: 34.3652458190918  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 40000 PSNR: 33.995086669921875
+[TRAIN] Iter: 42000 Loss: 0.0012228006962686777  PSNR: 35.38340377807617  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 42000 PSNR: 34.48780822753906
+[TRAIN] Iter: 44000 Loss: 0.0013899632031098008  PSNR: 34.11330032348633  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 44000 PSNR: 35.670963287353516
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=35.9029, iter=45000)
+[VAL] Iter: 45000 mean PSNR: 35.9029 | best: 35.9029 @ 45000
+[TRAIN] Iter: 46000 Loss: 0.0010645195143297315  PSNR: 35.668357849121094  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 46000 PSNR: 35.65868377685547
+[TRAIN] Iter: 48000 Loss: 0.0009073133114725351  PSNR: 35.41738510131836  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 48000 PSNR: 36.34159851074219
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=35.9264, iter=50000)
+[VAL] Iter: 50000 mean PSNR: 35.9264 | best: 35.9264 @ 50000
+[TRAIN] Iter: 50000 Loss: 0.0008594091050326824  PSNR: 35.58485412597656  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 50000 PSNR: 34.98084259033203
+[TRAIN] Iter: 52000 Loss: 0.001246678177267313  PSNR: 35.274818420410156  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 52000 PSNR: 35.49797058105469
+[TRAIN] Iter: 54000 Loss: 0.0011324748629704118  PSNR: 35.38001251220703  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 54000 PSNR: 34.87543487548828
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=36.0354, iter=55000)
+[VAL] Iter: 55000 mean PSNR: 36.0354 | best: 36.0354 @ 55000
+[TRAIN] Iter: 56000 Loss: 0.0009211021242663264  PSNR: 35.018287658691406  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 56000 PSNR: 33.45690155029297
+[TRAIN] Iter: 58000 Loss: 0.00103526352904737  PSNR: 34.909889221191406  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 58000 PSNR: 35.15801239013672
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=36.2651, iter=60000)
+[VAL] Iter: 60000 mean PSNR: 36.2651 | best: 36.2651 @ 60000
+[TRAIN] Iter: 60000 Loss: 0.0008425877313129604  PSNR: 36.59897232055664  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 60000 PSNR: 34.64060974121094
+[TRAIN] Iter: 62000 Loss: 0.0011592227965593338  PSNR: 35.144622802734375  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 62000 PSNR: 29.705169677734375
+[TRAIN] Iter: 64000 Loss: 0.0010831763502210379  PSNR: 33.275665283203125  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 64000 PSNR: 36.7337760925293
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=36.4111, iter=65000)
+[VAL] Iter: 65000 mean PSNR: 36.4111 | best: 36.4111 @ 65000
+[TRAIN] Iter: 66000 Loss: 0.0017938300734385848  PSNR: 33.39085006713867  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 66000 PSNR: 35.45701599121094
+[TRAIN] Iter: 68000 Loss: 0.0007900195196270943  PSNR: 36.97111129760742  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 68000 PSNR: 35.42272186279297
+[VAL] Iter: 70000 mean PSNR: 35.3039 | best: 36.4111 @ 65000
+[TRAIN] Iter: 70000 Loss: 0.0012651955476030707  PSNR: 36.545928955078125  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 70000 PSNR: 33.498741149902344
+[TRAIN] Iter: 72000 Loss: 0.000771517341490835  PSNR: 36.73555374145508  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 72000 PSNR: 35.59176254272461
+[TRAIN] Iter: 74000 Loss: 0.0010799512965604663  PSNR: 35.2312126159668  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 74000 PSNR: 35.68667984008789
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=36.7095, iter=75000)
+[VAL] Iter: 75000 mean PSNR: 36.7095 | best: 36.7095 @ 75000
+[TRAIN] Iter: 76000 Loss: 0.002477643545717001  PSNR: 31.23980712890625  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 76000 PSNR: 35.655879974365234
+[TRAIN] Iter: 78000 Loss: 0.000888242619112134  PSNR: 36.50531768798828  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 78000 PSNR: 35.671669006347656
+[VAL] Iter: 80000 mean PSNR: 36.6870 | best: 36.7095 @ 75000
+[TRAIN] Iter: 80000 Loss: 0.0007216330850496888  PSNR: 36.840736389160156  scheduler=rank_wsd phase=stable N_rand=1024 lr_ratio=1.0000 lr_muon=1.981e-03 lr_adam=1.575e-03
+[VAL]   Iter: 80000 PSNR: 33.11016845703125
+[TRAIN] Iter: 82000 Loss: 0.0007280483259819448  PSNR: 37.18280029296875  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.9100 lr_muon=1.803e-03 lr_adam=1.433e-03
+[VAL]   Iter: 82000 PSNR: 30.429868698120117
+[TRAIN] Iter: 84000 Loss: 0.0011781303910538554  PSNR: 34.07935333251953  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.8200 lr_muon=1.625e-03 lr_adam=1.292e-03
+[VAL]   Iter: 84000 PSNR: 35.943946838378906
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=37.1779, iter=85000)
+[VAL] Iter: 85000 mean PSNR: 37.1779 | best: 37.1779 @ 85000
+[TRAIN] Iter: 86000 Loss: 0.0008463349658995867  PSNR: 36.430965423583984  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.7300 lr_muon=1.446e-03 lr_adam=1.150e-03
+[VAL]   Iter: 86000 PSNR: 35.98970031738281
+[TRAIN] Iter: 88000 Loss: 0.0010245589073747396  PSNR: 36.3978271484375  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.6400 lr_muon=1.268e-03 lr_adam=1.008e-03
+[VAL]   Iter: 88000 PSNR: 36.72493362426758
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=37.7286, iter=90000)
+[VAL] Iter: 90000 mean PSNR: 37.7286 | best: 37.7286 @ 90000
+[TRAIN] Iter: 90000 Loss: 0.00042816606583073735  PSNR: 38.961368560791016  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.5500 lr_muon=1.090e-03 lr_adam=8.663e-04
+[VAL]   Iter: 90000 PSNR: 36.47638702392578
+[TRAIN] Iter: 92000 Loss: 0.001062839524820447  PSNR: 37.813262939453125  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.4600 lr_muon=9.113e-04 lr_adam=7.246e-04
+[VAL]   Iter: 92000 PSNR: 37.68266296386719
+[TRAIN] Iter: 94000 Loss: 0.0006035910919308662  PSNR: 38.01396179199219  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.3700 lr_muon=7.330e-04 lr_adam=5.828e-04
+[VAL]   Iter: 94000 PSNR: 36.83366394042969
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=38.1775, iter=95000)
+[VAL] Iter: 95000 mean PSNR: 38.1775 | best: 38.1775 @ 95000
+[TRAIN] Iter: 96000 Loss: 0.0006786462618038058  PSNR: 37.76067352294922  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.2800 lr_muon=5.547e-04 lr_adam=4.410e-04
+[VAL]   Iter: 96000 PSNR: 38.281837463378906
+[TRAIN] Iter: 98000 Loss: 0.0004216610686853528  PSNR: 40.48320770263672  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.1900 lr_muon=3.764e-04 lr_adam=2.993e-04
+[VAL]   Iter: 98000 PSNR: 30.939062118530273
+Saved checkpoints at /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/100000.tar
+[BEST] Saved best checkpoint to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/best.tar (PSNR=38.8487, iter=100000)
+[VAL] Iter: 100000 mean PSNR: 38.8487 | best: 38.8487 @ 100000
+0 0.0004496574401855469
+torch.Size([400, 400, 3]) torch.Size([400, 400])
+1 6.270061254501343
+2 6.274399280548096
+3 6.273482799530029
+4 6.279829025268555
+5 6.284417152404785
+6 6.288684129714966
+7 6.290529727935791
+8 6.283524990081787
+9 6.288022994995117
+10 6.285326242446899
+11 6.284706115722656
+12 6.285186052322388
+13 6.284750938415527
+14 6.297547101974487
+15 6.287046909332275
+16 6.288740873336792
+17 6.293350458145142
+18 6.288757562637329
+19 6.2894651889801025
+20 6.2844648361206055
+21 6.287129878997803
+22 6.28673243522644
+23 6.284483432769775
+24 6.288484334945679
+25 6.286645412445068
+26 6.288534879684448
+27 6.289439916610718
+28 6.28842306137085
+29 6.289328098297119
+30 6.288857460021973
+31 6.291005611419678
+32 6.282016754150391
+33 6.286861181259155
+34 6.293050527572632
+35 6.291783809661865
+36 6.292898893356323
+37 6.286560535430908
+38 6.289661884307861
+39 6.286278486251831
+Done, saving (40, 400, 400, 3) (40, 400, 400)
+test poses shape torch.Size([25, 4, 4])
+0 0.00089263916015625
+torch.Size([400, 400, 3]) torch.Size([400, 400])
+1 6.350241184234619
+2 6.3310160636901855
+3 6.326452732086182
+4 6.325000286102295
+5 6.32498025894165
+6 6.323697566986084
+7 6.320053815841675
+8 6.313453912734985
+9 6.314778566360474
+10 6.310877084732056
+11 6.308469295501709
+12 6.31071925163269
+13 6.308410406112671
+14 6.300810813903809
+15 6.310595989227295
+16 6.309136867523193
+17 6.3096301555633545
+18 6.3197503089904785
+19 6.3187031745910645
+20 6.320746898651123
+21 6.319742679595947
+22 6.322499990463257
+23 6.342205047607422
+24 6.326539993286133
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/greenx9/miniconda3/envs/nerf/lib/python3.8/site-packages/lpips/weights/v0.1/alex.pth
+Saved test set
+[TRAIN] Iter: 100000 Loss: 0.0009100201423279941  PSNR: 35.722633361816406  scheduler=rank_wsd phase=linear_decay N_rand=1024 lr_ratio=0.1000 lr_muon=1.981e-04 lr_adam=1.575e-04
+[VAL]   Iter: 100000 PSNR: 38.6756706237793
+Saved metric json to /home/greenx9/nerf-pytorch/exp_ips_github/logs/100k_muon_lr/hotdog/aux-sign-auto-cos-inc/lr0p0003_decay100_mlr0.0003_args/hotdog_aux-sign-auto-cos-inc_100k_muonlr0p0019810483_adam0p0015750528_decay326_trial012/metric.json
